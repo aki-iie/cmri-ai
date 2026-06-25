@@ -1,0 +1,4619 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8"/>
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>도서관 문화 인프라 정책 추천 시스템 | 부산·경남</title>
+  <meta name="description" content="부산·경남 CMRI 및 도서관 접근성 데이터 기반 5단계 정책 추천 시스템 (전국 도서관 정책 DB 적용)"/>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+KR:wght@300;400;500;700;800&display=swap" rel="stylesheet">
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.0/dist/chart.umd.min.js"></script>
+  <style>
+    :root {
+      --bg: #090e1f; --card: #111829; --card2: #161e30;
+      --border: rgba(255,255,255,0.08); --text: #eef0ff; --muted: #8892b0; --dim: #3d4a63;
+      --purple: #6366f1; --blue: #3b82f6; --cyan: #06b6d4;
+      --green: #10b981; --amber: #f59e0b; --rose: #f43f5e;
+      --s1: #6366f1; --s2: #3b82f6; --s3: #10b981; --s4: #f59e0b; --s5: #f43f5e;
+    }
+    *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+    html { scroll-behavior: smooth; }
+    body { font-family: 'Noto Sans KR', sans-serif; background: var(--bg); color: var(--text); min-height: 100vh; overflow-x: hidden; }
+    body::before { content: ''; position: fixed; inset: 0; background: radial-gradient(ellipse 80% 50% at 15% 20%, rgba(99,102,241,.06) 0%, transparent 60%), radial-gradient(ellipse 60% 40% at 85% 80%, rgba(6,182,212,.04) 0%, transparent 60%); pointer-events: none; z-index: 0; }
+
+    /* HEADER */
+    header { background: rgba(10,14,31,.95); border-bottom: 1px solid var(--border); padding: 0 2rem; position: sticky; top: 0; z-index: 100; backdrop-filter: blur(20px); }
+    .hdr { max-width: 1400px; margin: 0 auto; display: flex; align-items: center; justify-content: space-between; height: 64px; }
+    .logo { display: flex; align-items: center; gap: 12px; }
+    .logo-icon { width: 36px; height: 36px; background: linear-gradient(135deg,var(--purple),var(--cyan)); border-radius: 10px; display: flex; align-items: center; justify-content: center; font-size: 16px; }
+    .logo-text { font-size: .95rem; font-weight: 700; } .logo-text span { color: var(--cyan); }
+    .hdr-badge { background: rgba(99,102,241,.12); border: 1px solid rgba(99,102,241,.25); color: var(--purple); padding: 4px 12px; border-radius: 20px; font-size: .7rem; font-weight: 700; letter-spacing: .06em; }
+
+    /* HERO */
+    .hero { max-width: 1400px; margin: 0 auto; padding: 56px 2rem 36px; position: relative; z-index: 1; }
+    .hero-label { display: inline-flex; align-items: center; gap: 8px; background: rgba(99,102,241,.1); border: 1px solid rgba(99,102,241,.22); color: var(--purple); padding: 5px 14px; border-radius: 24px; font-size: .72rem; font-weight: 700; letter-spacing: .06em; margin-bottom: 18px; }
+    .hero-label::before { content: '●'; font-size: .45rem; animation: blink 2s infinite; }
+    @keyframes blink { 0%,100%{opacity:1} 50%{opacity:.25} }
+    h1 { font-size: clamp(1.9rem, 4.5vw, 3rem); font-weight: 800; letter-spacing: -.03em; line-height: 1.18; margin-bottom: 14px; }
+    h1 em { font-style: normal; color: var(--cyan); }
+    .hero p { font-size: 1rem; color: var(--muted); line-height: 1.75; max-width: 620px; margin-bottom: 36px; }
+
+    /* SELECTOR */
+    .sel-card { background: var(--card); border: 1px solid var(--border); border-radius: 20px; padding: 28px; margin-bottom: 36px; position: relative; overflow: hidden; }
+    .sel-card::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 3px; background: linear-gradient(90deg,var(--purple),var(--cyan),var(--green)); }
+    .sel-label { font-size: .72rem; font-weight: 700; letter-spacing: .1em; text-transform: uppercase; color: var(--dim); margin-bottom: 18px; }
+    .sel-row { display: flex; gap: 14px; align-items: flex-end; flex-wrap: wrap; }
+    .sel-group { flex: 1; min-width: 150px; }
+    .sel-group label { display: block; font-size: .75rem; color: var(--muted); margin-bottom: 7px; font-weight: 500; }
+    select { width: 100%; background: var(--bg); border: 1px solid var(--border); color: var(--text); padding: 11px 36px 11px 14px; border-radius: 11px; font-size: .9rem; font-family: inherit; cursor: pointer; transition: border-color .2s, box-shadow .2s; appearance: none; background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E"); background-repeat: no-repeat; background-position: right 13px center; }
+    select:focus { outline: none; border-color: var(--purple); box-shadow: 0 0 0 3px rgba(99,102,241,.14); }
+    select:disabled { opacity: 0.45; cursor: not-allowed; }
+    select, .btn-run { min-height: 48px; } /* 모바일 터치 타깃 최소 48px */
+    @media(max-width:640px) { .sel-row { flex-direction: column; } .sel-group { min-width: 100%; } .btn-run { width: 100%; justify-content: center; } }
+    .btn-run { background: linear-gradient(135deg,var(--purple),var(--blue)); border: none; color: #fff; padding: 12px 28px; border-radius: 11px; font-size: .9rem; font-weight: 700; font-family: inherit; cursor: pointer; white-space: nowrap; transition: transform .2s, box-shadow .2s; box-shadow: 0 4px 18px rgba(99,102,241,.3); display: flex; align-items: center; gap: 7px; }
+    .btn-run:hover { transform: translateY(-2px); box-shadow: 0 8px 28px rgba(99,102,241,.4); }
+
+    /* STEPS */
+    .steps-bar { display: flex; margin-bottom: 44px; background: var(--card); border: 1px solid var(--border); border-radius: 14px; overflow: hidden; }
+    .stab { flex: 1; padding: 13px 6px; text-align: center; cursor: pointer; border: none; background: none; color: var(--dim); font-family: inherit; font-size: .75rem; font-weight: 600; transition: all .25s; display: flex; flex-direction: column; align-items: center; gap: 4px; border-right: 1px solid var(--border); }
+    .stab:last-child { border-right: none; }
+    .stab .sn { width: 22px; height: 22px; border-radius: 50%; background: rgba(255,255,255,.05); display: flex; align-items: center; justify-content: center; font-size: .7rem; transition: all .25s; }
+    .stab.active { color: #fff; background: rgba(255,255,255,.03); }
+    .stab.active .sn { background: var(--sc, var(--purple)); }
+    .stab.done .sn { background: rgba(34,197,94,.18); color: var(--green); }
+    .stab[data-s="1"] { --sc: var(--s1); }
+    .stab[data-s="2"] { --sc: var(--s2); }
+    .stab[data-s="3"] { --sc: var(--s3); }
+    .stab[data-s="4"] { --sc: var(--s4); }
+    .stab[data-s="5"] { --sc: var(--s5); }
+
+    /* MAIN */
+    .main { max-width: 1400px; margin: 0 auto; padding: 0 2rem 80px; position: relative; z-index: 1; }
+    .panel { display: none; animation: fadeUp .4s ease; }
+    .panel.on { display: block; }
+    @keyframes fadeUp { from{opacity:0;transform:translateY(14px)} to{opacity:1;transform:translateY(0)} }
+    .ph { display: flex; align-items: center; gap: 14px; margin-bottom: 28px; }
+    .pbadge { width: 46px; height: 46px; border-radius: 13px; display: flex; align-items: center; justify-content: center; font-size: .7rem; font-weight: 800; letter-spacing: .04em; flex-shrink: 0; }
+    .s1 .pbadge { background: rgba(99,102,241,.18); color: var(--s1); border: 1px solid rgba(99,102,241,.28); }
+    .s2 .pbadge { background: rgba(59,130,246,.18); color: var(--s2); border: 1px solid rgba(59,130,246,.28); }
+    .s3 .pbadge { background: rgba(16,185,129,.18); color: var(--s3); border: 1px solid rgba(16,185,129,.28); }
+    .s4 .pbadge { background: rgba(245,158,11,.18); color: var(--s4); border: 1px solid rgba(245,158,11,.28); }
+    .s5 .pbadge { background: rgba(244,63,94,.18); color: var(--s5); border: 1px solid rgba(244,63,94,.28); }
+    .ptitle h2 { font-size: 1.45rem; font-weight: 700; letter-spacing: -.02em; }
+    .ptitle p { color: var(--muted); font-size: .88rem; margin-top: 4px; }
+
+    /* CARDS */
+    .card { background: var(--card); border: 1px solid var(--border); border-radius: 18px; padding: 26px; transition: border-color .3s; }
+    .card:hover { border-color: rgba(255,255,255,.11); }
+    .ct { font-size: .72rem; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--dim); margin-bottom: 18px; }
+    .g2 { display: grid; grid-template-columns: 1fr 1fr; gap: 18px; }
+    .g3 { display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 18px; }
+    .g4 { display: grid; grid-template-columns: repeat(4,1fr); gap: 14px; }
+    .g5 { display: grid; grid-template-columns: repeat(5,1fr); gap: 14px; }
+
+    /* METRIC CARD */
+    .mc { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 20px; position: relative; overflow: hidden; transition: transform .2s, border-color .2s; }
+    .mc:hover { transform: translateY(-2px); border-color: rgba(255,255,255,.11); }
+    .mc.crit { border-color: rgba(244,63,94,.32); background: rgba(244,63,94,.04); }
+    .mc.crit::after { content: '🔴 핵심 문제'; position: absolute; top: 10px; right: 11px; font-size: .62rem; font-weight: 700; color: var(--rose); background: rgba(244,63,94,.14); padding: 2px 7px; border-radius: 7px; }
+    .ml { font-size: .78rem; color: var(--dim); margin-bottom: 8px; font-weight: 500; }
+    .mv { font-size: 2.1rem; font-weight: 800; letter-spacing: -.02em; line-height: 1; margin-bottom: 7px; }
+    .mbar { height: 5px; background: rgba(255,255,255,.05); border-radius: 3px; overflow: hidden; }
+    .mfill { height: 100%; border-radius: 3px; transition: width 1s cubic-bezier(.4,0,.2,1); }
+    .md { font-size: .72rem; color: var(--dim); margin-top: 7px; }
+    .sh { color: var(--rose); } .sm { color: var(--amber); } .sl { color: var(--green); }
+    .fh { background: var(--rose); } .fm { background: var(--amber); } .fl { background: var(--green); }
+
+    /* PILLS */
+    .pills { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 18px; }
+    .pill { background: rgba(255,255,255,.04); border: 1px solid var(--border); padding: 5px 13px; border-radius: 18px; font-size: .75rem; display: flex; align-items: center; gap: 5px; }
+    .pill span { color: var(--dim); } .pill strong { color: var(--cyan); }
+
+    /* DIAG RESULT */
+    .diag { background: linear-gradient(135deg,rgba(99,102,241,.09),rgba(6,182,212,.04)); border: 1px solid rgba(99,102,241,.22); border-radius: 14px; padding: 22px; margin-top: 22px; }
+    .diag h3 { font-size: .95rem; font-weight: 700; color: var(--cyan); margin-bottom: 10px; }
+    .diag p { color: var(--muted); font-size: .9rem; line-height: 1.8; }
+
+    /* REGION CARDS */
+    .rcards { display: grid; grid-template-columns: repeat(auto-fill,minmax(260px,1fr)); gap: 14px; }
+    .rc { background: var(--card2); border: 1px solid var(--border); border-radius: 14px; padding: 18px; cursor: pointer; transition: all .25s; }
+    .rc:hover { border-color: var(--blue); transform: translateY(-3px); box-shadow: 0 8px 22px rgba(59,130,246,.14); }
+    .rch { display: flex; justify-content: space-between; align-items: flex-start; margin-bottom: 12px; }
+    .rn { font-size: 1.05rem; font-weight: 700; }
+    .rs { font-size: .68rem; color: var(--dim); font-weight: 500; }
+    .sim-badge { background: rgba(99,102,241,.14); color: var(--purple); padding: 3px 9px; border-radius: 7px; font-size: .72rem; font-weight: 700; }
+    .rstat { display: flex; flex-direction: column; gap: 5px; }
+    .rsl { display: flex; justify-content: space-between; font-size: .78rem; }
+    .rsl-k { color: var(--dim); } .rsl-v { color: var(--muted); font-weight: 500; }
+
+    /* CLUSTER */
+    .cg { display: grid; grid-template-columns: repeat(3,1fr); gap: 14px; margin-bottom: 18px; }
+    .cc { border-radius: 14px; padding: 18px; border: 1px solid; }
+    .cc1 { background: rgba(244,63,94,.06); border-color: rgba(244,63,94,.22); }
+    .cc2 { background: rgba(245,158,11,.06); border-color: rgba(245,158,11,.22); }
+    .cc3 { background: rgba(16,185,129,.06); border-color: rgba(16,185,129,.22); }
+    .cct { font-size: .78rem; font-weight: 700; margin-bottom: 3px; }
+    .cc1 .cct { color: var(--rose); } .cc2 .cct { color: var(--amber); } .cc3 .cct { color: var(--green); }
+    .ccs { font-size: .68rem; color: var(--dim); margin-bottom: 10px; }
+    .ccm { display: flex; flex-wrap: wrap; gap: 4px; }
+    .ctag { font-size: .66rem; padding: 2px 7px; border-radius: 6px; font-weight: 500; }
+    .cc1 .ctag { background: rgba(244,63,94,.14); color: var(--rose); }
+    .cc2 .ctag { background: rgba(245,158,11,.14); color: var(--amber); }
+    .cc3 .ctag { background: rgba(16,185,129,.14); color: var(--green); }
+    .ctag.hi { font-weight: 800; outline: 1px solid currentColor; }
+
+    /* POLICY */
+    .pgrid { display: flex; flex-direction: column; gap: 10px; }
+    .pi { background: var(--card2); border: 1px solid var(--border); border-radius: 13px; padding: 16px 18px; display: flex; align-items: flex-start; gap: 14px; transition: all .25s; }
+    .pi:hover { border-color: rgba(255,255,255,.11); transform: translateX(3px); }
+    .pi.match { border-color: rgba(245,158,11,.28); background: rgba(245,158,11,.05); }
+    .pico { width: 42px; height: 42px; border-radius: 11px; display: flex; align-items: center; justify-content: center; font-size: 1.25rem; flex-shrink: 0; }
+    .pinfo { flex: 1; min-width: 0; }
+    .prow { display: flex; align-items: center; gap: 7px; flex-wrap: wrap; margin-bottom: 5px; }
+    .pname { font-size: .92rem; font-weight: 700; }
+    .ptyp { font-size: .62rem; font-weight: 700; padding: 2px 7px; border-radius: 5px; white-space: nowrap; }
+    .psrc { font-size: .62rem; color: var(--dim); white-space: nowrap; }
+    .pdesc { font-size: .78rem; color: var(--muted); line-height: 1.55; margin-bottom: 7px; }
+    .pprob { font-size: .7rem; color: var(--dim); margin-bottom: 6px; }
+    .pcond { font-size: .7rem; margin-bottom: 7px; }
+    .pcond.ok { color: var(--green); }
+    .pcond.no { color: var(--dim); }
+    .pbar-row { display: flex; align-items: center; gap: 8px; margin-top: 4px; }
+    .pbar-track { flex: 1; height: 5px; background: rgba(255,255,255,.06); border-radius: 3px; overflow: hidden; }
+    .pbar-fill { height: 100%; border-radius: 3px; transition: width .8s ease; }
+    .ppct { font-size: .7rem; font-weight: 700; min-width: 34px; text-align: right; }
+    .peff { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 7px; }
+    .etag { font-size: .65rem; padding: 2px 7px; border-radius: 5px; font-weight: 600; }
+    .pfilt { display: flex; gap: 7px; flex-wrap: wrap; margin-bottom: 18px; }
+    .fbt { padding: 6px 14px; border-radius: 18px; font-size: .75rem; font-weight: 600; cursor: pointer; border: 1px solid; font-family: inherit; transition: opacity .2s; }
+    .fbt:not(.fa) { opacity: .55; }
+
+    /* REPORT */
+    .rpt { background: linear-gradient(135deg,rgba(16,18,38,.92),rgba(13,19,34,.92)); border: 1px solid rgba(99,102,241,.18); border-radius: 22px; padding: 36px; position: relative; overflow: hidden; }
+    .rpt::before { content: ''; position: absolute; top: 0; left: 0; right: 0; height: 4px; background: linear-gradient(90deg,var(--s1),var(--s2),var(--s3),var(--s4),var(--s5)); }
+    .rpt-title { font-size: 1.5rem; font-weight: 800; letter-spacing: -.02em; margin-bottom: 6px; }
+    .rpt-sub { color: var(--muted); font-size: .87rem; margin-bottom: 32px; }
+    .rsec { margin-bottom: 26px; }
+    .rsec-title { display: flex; align-items: center; gap: 9px; font-size: .8rem; font-weight: 700; letter-spacing: .05em; text-transform: uppercase; color: var(--dim); margin-bottom: 12px; }
+    .rsec-title::after { content: ''; flex: 1; height: 1px; background: var(--border); }
+    .rtext { color: var(--muted); font-size: .9rem; line-height: 1.85; border-left: 3px solid; padding-left: 14px; margin-top: 6px; }
+    .rp { border-color: var(--s1); } .rb { border-color: var(--s2); } .rg { border-color: var(--s3); } .ra { border-color: var(--s4); } .rr { border-color: var(--s5); }
+    .precs { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 10px; }
+    .prec { background: rgba(245,158,11,.07); border: 1px solid rgba(245,158,11,.18); border-radius: 11px; padding: 12px 14px; display: flex; align-items: flex-start; gap: 9px; }
+    .prec-n { width: 20px; height: 20px; border-radius: 50%; background: rgba(245,158,11,.18); color: var(--amber); font-size: .68rem; font-weight: 700; display: flex; align-items: center; justify-content: center; flex-shrink: 0; }
+    .prec-t { font-size: .8rem; color: var(--muted); line-height: 1.5; }
+    .prec-t strong { color: var(--text); display: block; margin-bottom: 2px; font-weight: 700; }
+    .concl { background: linear-gradient(135deg,rgba(6,182,212,.09),rgba(99,102,241,.06)); border: 1px solid rgba(6,182,212,.18); border-radius: 14px; padding: 22px; margin-top: 22px; }
+    .concl h3 { font-size: .95rem; font-weight: 700; color: var(--cyan); margin-bottom: 10px; }
+    .concl p { color: var(--muted); font-size: .88rem; line-height: 1.85; }
+
+    /* NAV */
+    .nav { display: flex; justify-content: space-between; margin-top: 28px; gap: 10px; }
+    .btn-prev, .btn-next { padding: 11px 24px; border-radius: 11px; border: none; font-size: .87rem; font-weight: 700; font-family: inherit; cursor: pointer; display: flex; align-items: center; gap: 7px; transition: all .2s; }
+    .btn-prev { background: var(--card2); border: 1px solid var(--border); color: var(--muted); }
+    .btn-prev:hover { border-color: rgba(255,255,255,.14); color: var(--text); }
+    .btn-next { background: linear-gradient(135deg,var(--purple),var(--blue)); color: #fff; box-shadow: 0 4px 14px rgba(99,102,241,.28); }
+    .btn-next:hover { transform: translateY(-2px); box-shadow: 0 8px 22px rgba(99,102,241,.38); }
+
+    @media(max-width:900px) { .g2,.g3,.g4,.g5{grid-template-columns:1fr 1fr;} .cg{grid-template-columns:1fr;} .precs{grid-template-columns:1fr;} }
+    @media(max-width:600px) { .hero{padding:36px 1.2rem 24px;} .main{padding:0 1.2rem 60px;} .g2,.g3,.g4,.g5{grid-template-columns:1fr;} .rpt{padding:22px;} .steps-bar{overflow-x:auto;} .stab{min-width:80px;} }
+    ::-webkit-scrollbar{width:5px;} ::-webkit-scrollbar-track{background:transparent;} ::-webkit-scrollbar-thumb{background:rgba(255,255,255,.09);border-radius:3px;}
+  </style>
+</head>
+<body>
+
+<header>
+  <div class="hdr">
+    <div class="logo">
+      <div class="logo-icon">📚</div>
+      <div class="logo-text">도서관 정책 <span>추천 AI</span></div>
+    </div>
+    <div class="hdr-badge">부산·경남 CMRI 기반 · 전국 정책 DB 적용</div>
+  </div>
+</header>
+
+<div class="hero">
+  <div class="hero-label">AI-Powered Policy Recommendation System v3</div>
+  <h1>지역 도서관 문화 인프라<br><em>정책 추천 시스템</em></h1>
+  <p>CMRI 지수와 도서관 접근성 불편점수를 분석하여, <strong style="color:var(--text)">전국 20개 도서관 정책 DB</strong>에서 핵심 문제를 진단하고, 문화적으로 유사한 지역의 운영 방식을 참고한 최적 정책을 제안합니다.</p>
+
+  <div class="sel-card">
+    <div class="sel-label">📍 분석 지역 선택</div>
+
+    <!-- 시도 탭 버튼 -->
+    <div style="margin-bottom:18px;">
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px;font-weight:500;">① 시도 선택</div>
+      <div style="display:flex;gap:10px;">
+        <button id="btn-busan" onclick="showGu('부산')" style="flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--muted);font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;">부산광역시</button>
+        <button id="btn-gyenam" onclick="showGu('경남')" style="flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--muted);font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;transition:all .2s;">경상남도</button>
+      </div>
+    </div>
+
+    <!-- 시군구 선택 -->
+    <div id="gu-area" style="display:none;margin-bottom:18px;">
+      <div style="font-size:.75rem;color:var(--muted);margin-bottom:10px;font-weight:500;">② 시군구 선택</div>
+      <select id="sel-gu" style="width:100%;background:var(--bg);border:2px solid rgba(99,102,241,.4);color:var(--text);padding:14px 36px 14px 14px;border-radius:12px;font-size:1rem;font-family:inherit;cursor:pointer;appearance:none;background-image:url(&quot;data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='12' height='8'%3E%3Cpath d='M1 1l5 5 5-5' stroke='%238892b0' stroke-width='1.5' fill='none' stroke-linecap='round'/%3E%3C/svg%3E&quot;);background-repeat:no-repeat;background-position:right 14px center;">
+        <option value="">시군구를 선택하세요</option>
+      </select>
+    </div>
+
+    <!-- 분석 시작 버튼 -->
+    <button class="btn-run" onclick="runAnalysis()" style="width:100%;justify-content:center;padding:15px;font-size:1rem;">🔍 분석 시작</button>
+  </div>
+
+  <div class="steps-bar" id="steps-bar" style="display:none;">
+    <button class="stab" data-s="1" onclick="goStep(1)"><div class="sn">1</div><span>문제 진단 (What)</span></button>
+    <button class="stab" data-s="2" onclick="goStep(2)"><div class="sn">2</div><span>문화 유사 지역 분석 (How)</span></button>
+    <button class="stab" data-s="3" onclick="goStep(3)"><div class="sn">3</div><span>성공 사례 제시 (Reference)</span></button>
+    <button class="stab" data-s="4" onclick="goStep(4)"><div class="sn">4</div><span>최종 AI 정책 추천 (Result)</span></button>
+  </div>
+</div>
+
+<div class="main" id="main" style="display:none;">
+
+  <!-- STEP 1 -->
+  <div class="panel s1" id="p1">
+    <div class="ph"><div class="pbadge">STEP<br>01</div><div class="ptitle"><h2>🔍 STEP 1. 문제 진단 (What)</h2><p>핵심 불편요인을 도출하고 정책 DB를 기반으로 해결 정책 종류를 결정합니다</p></div></div>
+    <div class="pills" id="pills1"></div>
+    <div class="g5" id="mcs" style="margin-bottom:22px;"></div>
+    <div class="g2">
+      <div class="card"><div class="ct">📊 불편점수 레이더 차트</div><div style="height:280px;"><canvas id="radar"></canvas></div></div>
+      <div class="card"><div class="ct">📈 4개 지표 비교</div><div style="height:280px;"><canvas id="bar"></canvas></div></div>
+    </div>
+    <div class="diag" id="diag"></div>
+    <div id="policy-mapping-1" style="margin-top:22px;"></div>
+    <div class="nav"><div></div><button class="btn-next" onclick="goStep(2)">다음 → 문화 유사 지역 분석</button></div>
+  </div>
+
+  <!-- STEP 2 -->
+  <div class="panel s2" id="p2">
+    <div class="ph"><div class="pbadge">STEP<br>02</div><div class="ptitle"><h2>🗺️ STEP 2. 문화 유사 지역 분석 (How)</h2><p>문화적 유사성이 가장 높은 서울 자치구를 분석하여 정책 운영 방식을 제안합니다</p></div></div>
+    
+    <!-- 매칭 요약 카드 -->
+    <div class="card" style="margin-bottom:22px;">
+      <div class="ct">🎯 문화적 특성 매칭 결과</div>
+      <div id="match-summary-2"></div>
+    </div>
+    
+    <!-- Heatmap & WordCloud -->
+    <div class="g2" style="margin-bottom:22px;">
+      <div class="card" style="display:flex; flex-direction:column;">
+        <div class="ct">📊 서울 25개 자치구별 코사인 유사도 Heatmap</div>
+        <div id="heatmap-container" style="flex:1; display:flex; align-items:center; justify-content:center;"></div>
+      </div>
+      <div class="card">
+        <div class="ct">☁️ 양 지역 대표 문화 키워드 WordCloud 비교</div>
+        <div style="display:flex; flex-direction:column; gap:14px;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--muted); margin-bottom:5px; font-weight:700;" id="wc-label-local">선택 지역 키워드</div>
+            <div class="wordcloud-container" id="wc-local" style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px; padding:15px; background:var(--card2); border:1px solid var(--border); border-radius:11px; min-height:110px;"></div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--muted); margin-bottom:5px; font-weight:700;" id="wc-label-seoul">매칭 서울 지역 키워드</div>
+            <div class="wordcloud-container" id="wc-seoul" style="display:flex; flex-wrap:wrap; justify-content:center; align-items:center; gap:8px; padding:15px; background:var(--card2); border:1px solid var(--border); border-radius:11px; min-height:110px;"></div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ② 유사 지역 도서관 정책 분석 -->
+    <div class="card" style="margin-bottom:22px; display:none;" id="step2-policy-analysis"></div>
+    
+    <!-- ③ 벤치마킹 적용 전략 -->
+    <div class="card" style="margin-bottom:22px; display:none;" id="step2-benchmarking-strategy"></div>
+    
+    <div class="nav"><button class="btn-prev" onclick="goStep(1)">← 문제 진단</button><button class="btn-next" onclick="goStep(3)">다음 → 성공 사례 보기</button></div>
+  </div>
+
+  <!-- STEP 3 -->
+  <div class="panel s3" id="p3">
+    <div class="ph"><div class="pbadge">STEP<br>03</div><div class="ptitle"><h2>🏆 STEP 3. 성공 사례 제시 (Reference)</h2><p>군집 분석을 활용하여 비슷한 문화소멸 위험 특성을 가진 지역의 실제 성공 사례를 제공합니다.</p></div></div>
+    <div id="step3-content"></div>
+    <div class="nav"><button class="btn-prev" onclick="goStep(2)">← 문화 유사 지역</button><button class="btn-next" onclick="goStep(4)">다음 → 최종 AI 정책 추천</button></div>
+  </div>
+
+  <!-- STEP 4 -->
+  <div class="panel s4" id="p4">
+    <div class="ph"><div class="pbadge">STEP<br>04</div><div class="ptitle"><h2>📄 STEP 4. 최종 AI 정책 추천 (Result)</h2><p>앞선 3단계 분석 결과를 종합하여 최종 맞춤형 도서관 정책을 제안합니다</p></div></div>
+    <div id="report"></div>
+    <div class="nav"><button class="btn-prev" onclick="goStep(3)">← 성공 사례</button><button class="btn-next" onclick="window.print()" style="background:linear-gradient(135deg,#10b981,#059669);">🖨️ 보고서 저장</button></div>
+  </div>
+
+
+
+<script>
+// ─── DATA ───────────────────────────────────────────
+const DISTRICTS = [
+  {시도:"경남",시군구:"거제시",노후화:34.2,사서부족:61.4,도서관부족:73.5,접근성:21.4,종합불편:41.6,인구_2025:231178,도서관수:7,사서수:21.5,사서1인당인구:10752,평균개관년도:2006.4,군집:"군집 1",S_pop_소멸:52.7,S_infra_인프라:51.6,CMRI:52.2,인프라갭:-1.1,고령화율:16.9},
+  {시도:"경남",시군구:"거창군",노후화:56.6,사서부족:36.9,도서관부족:71.3,접근성:21.3,종합불편:44.2,인구_2025:58980,도서관수:2,사서수:8.0,사서1인당인구:7372,평균개관년도:1995.0,군집:"군집 1",S_pop_소멸:55.9,S_infra_인프라:47.3,CMRI:51.6,인프라갭:-8.6,고령화율:33.5},
+  {시도:"경남",시군구:"고성군",노후화:53.6,사서부족:32.2,도서관부족:74.1,접근성:29.4,종합불편:46.9,인구_2025:47099,도서관수:2,사서수:7.0,사서1인당인구:6728,평균개관년도:1996.5,군집:"군집 3",S_pop_소멸:67.8,S_infra_인프라:34.3,CMRI:51.1,인프라갭:-33.5,고령화율:39.2},
+  {시도:"경남",시군구:"김해시",노후화:34.1,사서부족:42.9,도서관부족:81.1,접근성:22.2,종합불편:42.0,인구_2025:533035,도서관수:10,사서수:65.0,사서1인당인구:8201,평균개관년도:2006.5,군집:"군집 2",S_pop_소멸:38.6,S_infra_인프라:53.2,CMRI:45.9,인프라갭:14.6,고령화율:16.3},
+  {시도:"경남",시군구:"남해군",노후화:64.6,사서부족:32.7,도서관부족:66.1,접근성:27.8,종합불편:47.0,인구_2025:40770,도서관수:2,사서수:6.0,사서1인당인구:6795,평균개관년도:1990.5,군집:"군집 3",S_pop_소멸:63.2,S_infra_인프라:35.8,CMRI:49.5,인프라갭:-27.4,고령화율:43.4},
+  {시도:"경남",시군구:"밀양시",노후화:64.8,사서부족:31.4,도서관부족:67.2,접근성:24.4,종합불편:45.9,인구_2025:99252,도서관수:4,사서수:15.0,사서1인당인구:6617,평균개관년도:1990.8,군집:"군집 3",S_pop_소멸:61.1,S_infra_인프라:36.6,CMRI:48.9,인프라갭:-24.5,고령화율:36.5},
+  {시도:"경남",시군구:"사천시",노후화:39.0,사서부족:24.6,도서관부족:80.6,접근성:25.2,종합불편:42.4,인구_2025:107935,도서관수:4,사서수:19.0,사서1인당인구:5681,평균개관년도:2004.0,군집:"군집 3",S_pop_소멸:55.1,S_infra_인프라:26.9,CMRI:41.0,인프라갭:-28.2,고령화율:27.1},
+  {시도:"경남",시군구:"산청군",노후화:42.9,사서부족:13.1,도서관부족:55.9,접근성:27.9,종합불편:37.2,인구_2025:32745,도서관수:2,사서수:8.0,사서1인당인구:4093,평균개관년도:2002.0,군집:"군집 3",S_pop_소멸:70.5,S_infra_인프라:16.5,CMRI:43.5,인프라갭:-54.1,고령화율:44.7},
+  {시도:"경남",시군구:"양산시",노후화:22.6,사서부족:70.7,도서관부족:89.5,접근성:23.0,종합불편:44.3,인구_2025:361155,도서관수:8,사서수:30.0,사서1인당인구:12038,평균개관년도:2012.4,군집:"군집 2",S_pop_소멸:40.0,S_infra_인프라:53.5,CMRI:46.8,인프라갭:13.5,고령화율:19.1},
+  {시도:"경남",시군구:"의령군",노후화:97.5,사서부족:13.2,도서관부족:69.2,접근성:23.3,종합불편:52.3,인구_2025:24636,도서관수:1,사서수:6.0,사서1인당인구:4106,평균개관년도:1974.0,군집:"군집 3",S_pop_소멸:67.6,S_infra_인프라:33.0,CMRI:50.3,인프라갭:-34.6,고령화율:44.4},
+  {시도:"경남",시군구:"진주시",노후화:40.0,사서부족:57.3,도서관부족:90.7,접근성:23.2,종합불편:47.7,인구_2025:335939,도서관수:6,사서수:33.0,사서1인당인구:10180,평균개관년도:2003.5,군집:"군집 2",S_pop_소멸:37.6,S_infra_인프라:66.8,CMRI:52.2,인프라갭:29.2,고령화율:22.0},
+  {시도:"경남",시군구:"창녕군",노후화:60.0,사서부족:14.1,도서관부족:52.5,접근성:28.6,종합불편:41.0,인구_2025:54900,도서관수:3,사서수:13.0,사서1인당인구:4223,평균개관년도:1993.0,군집:"군집 3",S_pop_소멸:63.2,S_infra_인프라:24.9,CMRI:44.1,인프라갭:-38.4,고령화율:40.2},
+  {시도:"경남",시군구:"창원시",노후화:44.8,사서부족:40.0,도서관부족:67.7,접근성:23.7,종합불편:41.6,인구_2025:990898,도서관수:18,사서수:127.0,사서1인당인구:7802,평균개관년도:2000.0,군집:"군집 1",S_pop_소멸:48.4,S_infra_인프라:60.5,CMRI:54.5,인프라갭:12.2,고령화율:20.7},
+  {시도:"경남",시군구:"통영시",노후화:49.2,사서부족:34.7,도서관부족:72.5,접근성:39.0,종합불편:49.5,인구_2025:116667,도서관수:5,사서수:16.5,사서1인당인구:7071,평균개관년도:1996.8,군집:"군집 3",S_pop_소멸:64.3,S_infra_인프라:35.4,CMRI:49.9,인프라갭:-28.9,고령화율:27.4},
+  {시도:"경남",시군구:"하동군",노후화:76.0,사서부족:31.8,도서관부족:85.1,접근성:28.0,종합불편:54.7,인구_2025:39974,도서관수:1,사서수:6.0,사서1인당인구:6662,평균개관년도:1985.0,군집:"군집 1",S_pop_소멸:70.3,S_infra_인프라:52.2,CMRI:61.2,인프라갭:-18.1,고령화율:43.4},
+  {시도:"경남",시군구:"함안군",노후화:45.8,사서부족:43.1,도서관부족:84.4,접근성:27.9,종합불편:48.0,인구_2025:57558,도서관수:2,사서수:7.0,사서1인당인구:8223,평균개관년도:2000.5,군집:"군집 1",S_pop_소멸:67.0,S_infra_인프라:47.8,CMRI:57.4,인프라갭:-19.2,고령화율:33.5},
+  {시도:"경남",시군구:"함양군",노후화:100.0,사서부족:34.9,도서관부족:83.3,접근성:25.4,종합불편:59.5,인구_2025:35472,도서관수:1,사서수:5.0,사서1인당인구:7094,평균개관년도:1963.0,군집:"군집 1",S_pop_소멸:64.3,S_infra_인프라:56.4,CMRI:60.3,인프라갭:-8.0,고령화율:41.1},
+  {시도:"경남",시군구:"합천군",노후화:100.0,사서부족:40.3,도서관부족:90.4,접근성:32.2,종합불편:64.5,인구_2025:39190,도서관수:1,사서수:5.0,사서1인당인구:7838,평균개관년도:1972.0,군집:"군집 1",S_pop_소멸:71.6,S_infra_인프라:61.6,CMRI:66.6,인프라갭:-10.0,고령화율:47.3},
+  {시도:"부산",시군구:"강서구",노후화:22.7,사서부족:82.5,도서관부족:93.5,접근성:20.0,종합불편:45.3,인구_2025:150299,도서관수:3,사서수:11.0,사서1인당인구:13664,평균개관년도:2012.3,군집:"군집 2",S_pop_소멸:30.3,S_infra_인프라:57.2,CMRI:43.7,인프라갭:26.9,고령화율:15.2},
+  {시도:"부산",시군구:"금정구",노후화:46.8,사서부족:36.9,도서관부족:81.5,접근성:17.0,종합불편:42.5,인구_2025:206588,도서관수:3,사서수:28.0,사서1인당인구:7378,평균개관년도:2000.0,군집:"군집 1",S_pop_소멸:52.2,S_infra_인프라:66.1,CMRI:59.1,인프라갭:13.9,고령화율:28.3},
+  {시도:"부산",시군구:"기장군",노후화:15.9,사서부족:25.7,도서관부족:66.7,접근성:20.6,종합불편:31.5,인구_2025:174898,도서관수:7,사서수:30.0,사서1인당인구:5830,평균개관년도:2015.9,군집:"군집 3",S_pop_소멸:53.0,S_infra_인프라:15.9,CMRI:34.5,인프라갭:-37.0,고령화율:20.8},
+  {시도:"부산",시군구:"남구",노후화:21.4,사서부족:66.1,도서관부족:95.2,접근성:15.9,종합불편:42.1,인구_2025:250668,도서관수:3,사서수:22.0,사서1인당인구:11394,평균개관년도:2013.0,군집:"군집 2",S_pop_소멸:41.4,S_infra_인프라:68.1,CMRI:54.7,인프라갭:26.8,고령화율:25.5},
+  {시도:"부산",시군구:"동구",노후화:36.4,사서부족:34.1,도서관부족:80.6,접근성:12.5,종합불편:37.7,인구_2025:83851,도서관수:3,사서수:12.0,사서1인당인구:6988,평균개관년도:2005.3,군집:"군집 3",S_pop_소멸:51.1,S_infra_인프라:34.2,CMRI:42.6,인프라갭:-16.9,고령화율:31.1},
+  {시도:"부산",시군구:"동래구",노후화:23.9,사서부족:100.0,도서관부족:99.6,접근성:13.8,종합불편:46.4,인구_2025:273277,도서관수:4,사서수:17.0,사서1인당인구:16075,평균개관년도:2011.8,군집:"군집 2",S_pop_소멸:44.3,S_infra_인프라:70.5,CMRI:57.4,인프라갭:26.2,고령화율:23.4},
+  {시도:"부산",시군구:"부산진구",노후화:45.3,사서부족:53.2,도서관부족:80.2,접근성:12.3,종합불편:41.6,인구_2025:365378,도서관수:5,사서수:38.0,사서1인당인구:9615,평균개관년도:1986.4,군집:"군집 2",S_pop_소멸:25.1,S_infra_인프라:81.9,CMRI:53.5,인프라갭:56.8,고령화율:23.9},
+  {시도:"부산",시군구:"북구",노후화:38.2,사서부족:43.0,도서관부족:79.9,접근성:18.9,종합불편:41.4,인구_2025:262862,도서관수:5,사서수:32.0,사서1인당인구:8214,평균개관년도:2004.4,군집:"군집 1",S_pop_소멸:59.2,S_infra_인프라:55.4,CMRI:57.3,인프라갭:-3.8,고령화율:25.4},
+  {시도:"부산",시군구:"사상구",노후화:16.2,사서부족:27.4,도서관부족:51.3,접근성:15.4,종합불편:25.8,인구_2025:194124,도서관수:3,사서수:32.0,사서1인당인구:6066,평균개관년도:2015.7,군집:"군집 3",S_pop_소멸:55.7,S_infra_인프라:40.3,CMRI:48.0,인프라갭:-15.4,고령화율:26.5},
+  {시도:"부산",시군구:"사하구",노후화:35.1,사서부족:95.6,도서관부족:97.0,접근성:17.0,종합불편:49.4,인구_2025:286222,도서관수:3,사서수:18.5,사서1인당인구:15471,평균개관년도:2006.0,군집:"군집 1",S_pop_소멸:58.9,S_infra_인프라:80.4,CMRI:69.7,인프라갭:21.5,고령화율:26.7},
+  {시도:"부산",시군구:"서구",노후화:89.7,사서부족:57.3,도서관부족:97.5,접근성:21.8,종합불편:61.2,인구_2025:101892,도서관수:1,사서수:10.0,사서1인당인구:10189,평균개관년도:1978.0,군집:"군집 1",S_pop_소멸:58.9,S_infra_인프라:90.4,CMRI:74.7,인프라갭:31.5,고령화율:31.1},
+  {시도:"부산",시군구:"수영구",노후화:25.3,사서부족:77.8,도서관부족:92.5,접근성:20.7,종합불편:45.5,인구_2025:169112,도서관수:3,사서수:13.0,사서1인당인구:13009,평균개관년도:2011.0,군집:"군집 2",S_pop_소멸:36.5,S_infra_인프라:65.1,CMRI:50.8,인프라갭:28.6,고령화율:27.0},
+  {시도:"부산",시군구:"연제구",노후화:31.8,사서부족:51.7,도서관부족:92.6,접근성:15.2,종합불편:42.4,인구_2025:211727,도서관수:3,사서수:22.5,사서1인당인구:9410,평균개관년도:2007.7,군집:"군집 2",S_pop_소멸:25.7,S_infra_인프라:63.6,CMRI:44.7,인프라갭:38.0,고령화율:24.2},
+  {시도:"부산",시군구:"영도구",노후화:41.9,사서부족:57.1,도서관부족:89.1,접근성:8.5,종합불편:41.8,인구_2025:101580,도서관수:2,사서수:10.0,사서1인당인구:10158,평균개관년도:2002.5,군집:"군집 1",S_pop_소멸:58.1,S_infra_인프라:61.1,CMRI:59.6,인프라갭:3.0,고령화율:35.0},
+  {시도:"부산",시군구:"중구",노후화:66.3,사서부족:0.0,도서관부족:0.0,접근성:5.9,종합불편:18.9,인구_2025:36518,도서관수:1,사서수:16.0,사서1인당인구:2282,평균개관년도:1990.0,군집:"군집 3",S_pop_소멸:56.2,S_infra_인프라:39.2,CMRI:47.7,인프라갭:-17.0,고령화율:34.1},
+  {시도:"부산",시군구:"해운대구",노후화:46.8,사서부족:43.5,도서관부족:80.3,접근성:22.0,종합불편:44.9,인구_2025:372604,도서관수:7,사서수:45.0,사서1인당인구:8280,평균개관년도:2000.0,군집:"군집 1",S_pop_소멸:50.5,S_infra_인프라:63.1,CMRI:56.8,인프라갭:12.6,고령화율:23.5}
+];
+// ─── 동일 군집 인근 우수 지역 성공 사례 데이터베이스 (REFERENCE) ───
+const SUCCESS_STORIES = {
+  "부산 사상구": "지하철역 및 공공청사 거점 스마트도서관(무인대출반납기)과 U도서관 시스템을 선도적으로 도입하여 통근·통학 시민들의 대중교통 접근성과 도서 이용 편의성을 획기적으로 개선했습니다.",
+  "부산 중구": "원도심의 지리적 한계를 극복하고 작은도서관 조성 및 도서관 상호대차 네트워크를 촘촘히 연계하여 생활밀착형 도서 서비스를 안정적으로 정착시켰습니다.",
+  "부산 동구": "전통 향토 역사자원과 연계하여 공공도서관 내 동의보감 한방 웰니스 등 지역 맞춤형 특화 프로그램을 개설해 중장년층과 어르신의 평생 교육 참여를 크게 증대시켰습니다.",
+  "부산 서구": "노후화된 구덕도서관의 전면적인 리모델링 및 공간 개선 사업을 완료하여, 낡은 열람실을 열린 문화 공간으로 현대화하고 주민 이용률을 40% 이상 향상시켰습니다.",
+  "부산 영도구": "전통 한옥 양식과 향토 인문 서적을 강독하는 서실 한옥도서관을 거점으로 주민 주도의 인문학 공동체 소통망을 안착시킨 대표적인 역사·전통 문화 복합 사례입니다.",
+  "부산 부산진구": "카페거리 및 문화광장 인근의 청년 활동 기반과 도서관을 연계하여 독립출판 작가와의 정기 교류 및 1인 출판 창작 교실 등 감성적인 청년 독서 문화를 선도하고 있습니다.",
+  "부산 남구": "도서관 전문 사서 인력과 야간 자원봉사단을 추가 확충하여 맞벌이 가정을 위한 야간 연장 개방 및 주말 특화 프로그램을 성공적으로 정착시켰습니다.",
+  "부산 동래구": "디지털 벤처 및 주거 지구의 특성을 살려 청소년 미래 직업 코딩 독서 교실과 어르신 대상 키오스크·스마트기기 활용 문해 교육 등 세대 맞춤형 정보 격차 해소 사업을 활성화했습니다.",
+  "부산 북구": "지역 역사문화 아카이브 구축을 통해 주민들의 애향심을 고취하고, 도서관 내 향토 인문 강좌와 어린이 전통 민속 구연 프로그램을 상설 운영하는 한옥 인문 아카데미를 안착시켰습니다.",
+  "부산 수영구": "지하철역 스마트도서관 고도화와 청소년 미디어 창작실 지원을 통해, 구민들이 도서 대출을 넘어 미디어 콘텐츠를 직접 생산하고 토론하는 디지털 문화 공간을 완성했습니다.",
+  "부산 연제구": "문화재 및 수변 자연생태 구역과 도서관 프로그램을 연동하여 청소년 미디어 창작 생활교실과 주민 환경 독서 쉼터를 결합한 친환경 복합 문화 교육 모델을 정립했습니다.",
+  "부산 해운대구": "인구 밀집 신도심 지역의 도서관 노후화 문제를 해결하기 위해 디지털자료실과 미디어 체험 공간 중심의 리모델링을 단행하여 청소년와 가족 단위 이용자를 성공적으로 재유치했습니다.",
+  "부산 강서구": "낙동강 수변 생태와 연계하여 친환경 생태 특화 도서관을 운영하고, 기후변화 대응 어린이 숲속 독서 교실 및 생태 환경 북아트 주민 워크숍을 지속 운영 중입니다.",
+  "부산 기장군": "넓은 도농 복합 지역의 물리적 접근성 한계를 해소하고자 이동도서관 차량을 대대적으로 개편 운행하여 교통 취약 지대의 독서 향유권을 적극 보장했습니다.",
+  "경남 창원시": "대형 노후 공공도서관들을 대상으로 에너지 효율을 개선하는 그린리모델링 사업을 추진하여 이산화탄소 배출을 줄이고 쾌적한 친환경 이용 환경을 확보한 전국 모범 사례입니다.",
+  "경남 진주시": "작은도서관 순회사서 지원사업을 체계화하여 소규모 도서관들의 장서 분류 및 운영 전문성을 보완하고, 지역 도서관 네트워크 간 협력 체계를 강화했습니다.",
+  "경남 김해시": "생활SOC 복합화 사업을 통해 공공도서관, 생활문화센터, 국공립어린이집을 단일 건물에 묶어 토지 이용 효율을 극대화하고 가족 단위의 복합 문화 이용 편의를 개선했습니다.",
+  "경남 양산시": "도서관 신축 대신 스마트도서관 및 무인대출반납 시스템을 유동인구 거점에 배치하고, 장서 구입비를 증액하여 인구 대비 지식 자원 만족도를 고르게 만족시켰습니다.",
+  "경남 거제시": "공장 및 조선 산업 단지 배후 도서관에 멀티미디어실과 디지털 미디어 창작소를 구축하여, 근로자 가족들과 청소년들의 디지털 정보 접근성과 직업 체험 기회를 넓혔습니다.",
+  "경남 사천시": "학교도서관과 공공도서관의 통합 연계 네트워크를 구축하여 학교 수업과 방과 후 청소년 활동을 유기적으로 연결하고 인근 학부모 커뮤니티 공간을 제공하고 있습니다.",
+  "경남 밀양시": "주민 소통형 복합문화공간 조성을 통해 노후 도서관을 문화·체육·가족 돌봄 기능이 결합된 지역 밀착형 중심 거점으로 리노베이션 완료했습니다.",
+  "경남 함안군": "도서관이 적은 군 지역 내에 상호대차 공유 차량 시스템과 작은도서관 운영비를 적극 보조하여, 신속한 도서 배달 서비스를 안착시켰습니다.",
+  "경남 창녕군": "도서관 내에 영유아와 보호자를 위한 북스타트 및 생애초기 독서지원 공간을 전용 설계하여 신생아 가족들의 도서관 조기 친숙도와 보육 만족도를 올렸습니다.",
+  "경남 고성군": "도서관 방문이 어려운 교통 취약 어르신과 거동불편 장애인을 위해 무료 택배 도서 대출 서비스(책나래)를 정기 지원하는 도서 배달망을 굳건히 정착시켰습니다.",
+  "경남 남해군": "지역 역사문화 자원을 아카이빙하는 특별 서재를 신설하고 향토 사료 인문 독서 동아리를 대대적으로 육성하여 어르신들의 은퇴 후 지적 활력을 지원하고 있습니다.",
+  "경남 하동군": "농어촌 고령화 지역의 특성에 맞게 성인 및 중장년 대상 도서관 지혜학교 공모사업을 매년 유치하여 생애주기 맞춤형 문화 프로그램 혜택을 넓혔습니다.",
+  "경남 산청군": "산간 교통 취약지 어르신들을 위한 한방·대체의학 전문 도서 보급과 힐링 원예 가드닝 교실을 유치하여 주민 밀착형 웰빙 학습 모델을 성공적으로 운영하고 있습니다.",
+  "경남 함양군": "농촌형 이동도서관을 노인 복지관 및 면 단위 마을 회관 위주로 정기 순회 운행하여 교통 소외 지역의 지식 격차 해소에 실질적으로 이바지했습니다.",
+  "경남 거창군": "도서관 길 위의 인문학 사업을 통해 지역 주민 누구나 참여 가능한 야외 인문 콘서트와 문화 탐방 행사를 정착시켜 인근 평생 교육 문화를 풍성하게 정착시켰습니다.",
+  "경남 합천군": "1972년 개관한 초노후 도서관을 대상으로 현대적 감각의 공간 개선 리모델링을 단행하여, 단순 열람실에서 북카페형 주민 커뮤니티 라운지로 성공적으로 변모시켰습니다.",
+  "경남 의령군": "작은 도서관 유휴 공간에 미디어 콘텐츠 제작 장비와 크리에이티브 공간을 설계하여 청소년들의 방과 후 창작 놀이터 및 메이커 교육장으로 활성화했습니다.",
+  "경남 통영시": "도서 및 해안 지역의 지리적 한계를 해소하고자 인접 지자체 간 도서관 통합 책이음 서비스와 국가상호대차 책바다망을 촘촘히 연동해 주민들의 선택권을 넓혔습니다."
+};
+
+const SUCCESS_STORIES_STRUCTURED = {
+  "부산 사상구": {
+    "policy": "스마트도서관 및 U도서관 시스템 구축",
+    "background": "지하철역 및 공공청사 주변 통근·통학 시간대 도서관 접근성 부족",
+    "content": "지하철역 및 공공청사 거점에 무인 대출·반납 시스템(스마트도서관) 도입",
+    "effect": "대중교통 접근성 및 도서 이용 편의성 획기적 개선, 이용률 증가"
+  },
+  "부산 중구": {
+    "policy": "작은도서관 및 상호대차 네트워크 구축",
+    "background": "원도심의 지리적 한계를 극복하기 위한 생활밀착형 도서 공간 부족",
+    "content": "생활밀착형 작은도서관 조성 및 도서관 간 상호대차 네트워크 연계",
+    "effect": "생활밀착형 도서 서비스 안정적 정착, 주민 도서 이용 편의성 제고"
+  },
+  "부산 동구": {
+    "policy": "동의보감 한방 웰니스 특화 프로그램 운영",
+    "background": "중장년 및 고령 인구 비중 대비 시니어 맞춤형 문화 프로그램 부족",
+    "content": "공공도서관 내 동의보감 한방 웰니스 등 지역 맞춤형 특화 프로그램 개설",
+    "effect": "중장년층 및 어르신의 평생 교육 참여 증대 및 건강 자가관리 지원"
+  },
+  "부산 서구": {
+    "policy": "구덕도서관 리모델링 및 공간 개선",
+    "background": "기존 구덕도서관의 노후화 및 열람실 환경 노후로 인한 이용률 감소",
+    "content": "노후화된 구덕도서관의 전면 리모델링 및 열린 문화 공간으로 현대화",
+    "effect": "주민 이용률 40% 이상 향상, 쾌적한 독서 환경 제공"
+  },
+  "부산 영도구": {
+    "policy": "서실 한옥도서관 거점 주민 인문학 소통망 안착",
+    "background": "전통 양식 보존 및 주민들이 주도하는 인문 공동체 공간 부족",
+    "content": "전통 한옥 양식의 서실 한옥도서관 건립 및 주민 주도 향토 사서 강독 운영",
+    "effect": "주민 주도의 인문학 공동체 소통망 안착 및 전통문화 활성화"
+  },
+  "부산 부산진구": {
+    "policy": "청년 문화거리 연계 독립출판 창작 교실",
+    "background": "카페거리 인근 청년 활동 기반 대비 청년층 대상 창작 인프라 부족",
+    "content": "독립출판 작가와의 정기 교류 및 1인 출판 창작 교실 등 청년 독서 프로그램 운영",
+    "effect": "청년층의 자발적 독서 문화 활성화 및 창작 참여 증대"
+  },
+  "부산 남구": {
+    "policy": "도서관 전문 사서 인력 확충 및 야간 연장 개방",
+    "background": "맞벌이 가정 및 직장인들을 위한 야간/주말 시간대 도서관 서비스 부족",
+    "content": "도서관 전문 사서 인력 및 야간 자원봉사단 확충을 통한 야간 연장 운영",
+    "effect": "맞벌이 가정을 위한 야간 연장 개방 및 주말 특화 프로그램 안착"
+  },
+  "부산 동래구": {
+    "policy": "세대 맞춤형 정보 격차 해소 사업",
+    "background": "주거 지구의 정보화 교육 환경 대비 시니어 세대의 디지털 기기 적응 격차",
+    "content": "청소년 미래 직업 코딩 독서 교실 및 어르신 대상 키오스크·스마트기기 활용 교육",
+    "effect": "세대 간 정보 격차 해소 및 정보 접근 편의성 개선"
+  },
+  "부산 북구": {
+    "policy": "한옥 인문 아카데미 및 향토 역사 아카이브",
+    "background": "지역 역사문화 보존 및 주민 주도의 전통문화 향유 기회 부족",
+    "content": "지역 역사문화 아카이브 구축 및 어린이 전통 민속 구연 프로그램 운영",
+    "effect": "주민들의 애향심 고취 및 어린이의 전통문화 친숙도 개선"
+  },
+  "부산 수영구": {
+    "policy": "지하철역 스마트도서관 및 청소년 미디어 창작실 지원",
+    "background": "통학 청소년과 주민의 접근성 한계 및 미디어 창작 공간의 부재",
+    "content": "지하철역 스마트도서관 고도화 및 도서관 내 미디어 콘텐츠 제작 장비 구축",
+    "effect": "디지털 정보 접근성 대폭 개선 및 청소년 미디어 제작 만족도 향상"
+  },
+  "부산 연제구": {
+    "policy": "청소년 미디어 창작 생활교실 및 친환경 독서 쉼터",
+    "background": "지역 수변 자연생태 구역 활용 친환경 주민 교육 프로그램 부족",
+    "content": "청소년 미디어 창작 생활교실과 주민 환경 독서 쉼터 결합 생태 교육 운영",
+    "effect": "친환경 복합 문화 교육 모델 정립 및 청소년 참여 유치"
+  },
+  "부산 해운대구": {
+    "policy": "디지털자료실 및 미디어 체험 공간 중심 리모델링",
+    "background": "인구 밀집 신도심 지역의 기존 도서관 시설 노후화 및 가족 단위 공간 부족",
+    "content": "디지털자료실 및 미디어 체험 공간 중심의 도서관 시설 현대화 리모델링",
+    "effect": "청소년 및 가족 단위 이용자 성공적 재유치, 정보 이용 만족도 향상"
+  },
+  "부산 강서구": {
+    "policy": "친환경 생태 특화 도서관 운영",
+    "background": "낙동강 수변 생태와 연동된 친환경 평생교육 프로그램 공간 부재",
+    "content": "기후변화 대응 어린이 숲속 독서 교실 및 생태 환경 북아트 워크숍 운영",
+    "effect": "어린이의 생태 정서 함양, 친환경 여가 선용 공간 확충"
+  },
+  "부산 기장군": {
+    "policy": "이동도서관 차량 운영 대대적 개편",
+    "background": "도농 복합 지역의 물리적 거리로 인한 외곽 취약 지역 독서 소외",
+    "content": "이동도서관 차량을 최신 사양으로 개편하고 교통 취약 마을 정기 순회 운행",
+    "effect": "교통 취약 지대의 독서 향유권 보장 및 문화 격차 해소"
+  },
+  "부산 사하구": {
+    "policy": "모바일 스마트도서관 인프라 및 야간 연장 운영",
+    "background": "공단 배후 주거지의 야간 문화 혜택 부족 및 대출 반납 편의성 부족",
+    "content": "직장인을 위한 모바일 스마트도서관 예약 무인대출반납 시스템 도입 및 사서 확충",
+    "effect": "근로자 및 청소년의 도서관 이용 편의 개선 및 야간 개방 시간 연장"
+  },
+  "부산 금정구": {
+    "policy": "금샘도서관 미디어 창작실 및 북스타트 전용 공간 설계",
+    "background": "신규 주거단지 가족 및 청소년을 위한 디지털 창작 인프라 부족",
+    "content": "미디어 콘텐츠 창작실 구축 및 영유아 보호자를 위한 북스타트 전용실 운영",
+    "effect": "어린이·가족 단위 이용자 유치 활성화 및 디지털 정보 역량 제고"
+  },
+  "경남 창원시": {
+    "policy": "노후 공공도서관 에너지 그린리모델링",
+    "background": "대형 노후 공공도서관의 에너지 효율성 저하 및 노후화된 열람 환경",
+    "content": "에너지 효율 개선을 위한 고성능 창호 및 단열 시공, 고효율 설비 리모델링",
+    "effect": "도서관 탄소 배출 저감 및 쾌적하고 조용한 도서관 이용 환경 확보"
+  },
+  "경남 진주시": {
+    "policy": "작은도서관 순회사서 지원사업",
+    "background": "소규모 작은도서관의 전문 인력 부재 및 장서 분류 체계의 비전형성",
+    "content": "작은도서관 순회사서 지원사업을 정례화하여 장서 정리 및 도서관 네트워크 활성화",
+    "effect": "소규모 도서관들의 전문성 보완 및 이용 만족도 대폭 증대"
+  },
+  "경남 김해시": {
+    "policy": "생활SOC 복합화 사업을 통한 가족 복합도서관 건립",
+    "background": "도심 내 영유아 보육, 생활문화, 도서 서비스가 연계된 종합 시설 부족",
+    "content": "공공도서관, 생활문화센터, 국공립어린이집을 단일 건물에 묶어 토지 효율성 극대화",
+    "effect": "가족 단위 주민들의 이동 거리 단축 및 종합 문화 복지 혜택 구현"
+  },
+  "경남 양산시": {
+    "policy": "스마트도서관 구축 및 도서 구입비 증액",
+    "background": "인구 급증 신도심 구역 대비 공공도서관 신축 예산 부족 및 도서 보유 만족도 저하",
+    "content": "유동인구 거점에 무인 스마트도서관 신속 배치 및 공공 도서 구입비 대폭 증액",
+    "effect": "인구 대비 지식 자원 접근 만족도 제고 및 대기 시간 단축"
+  },
+  "경남 거제시": {
+    "policy": "디지털 미디어 창작소 및 멀티미디어실 구축",
+    "background": "산업 단지 배후 지역의 청소년 디지털 정보 인프라 및 체험 공간 부족",
+    "content": "도서관 내에 멀티미디어실 구축 및 1인 미디어 제작실 설계",
+    "effect": "근로자 가족과 청소년들의 디지털 창작 역량 제고 및 정보 격차 해소"
+  },
+  "경남 사천시": {
+    "policy": "학교도서관-공공도서관 통합 연계망 구축",
+    "background": "학부모 커뮤니티 공간 및 방과 후 학생 교육 인프라의 연계 분절",
+    "content": "학교도서관과 공공도서관 연계를 통한 방과 후 활동 지원 및 학부모 공간 오픈",
+    "effect": "학교 교육 시너지 창출 및 인근 주민 학부모 모임 활성화"
+  },
+  "경남 밀양시": {
+    "policy": "노후 도서관 복합문화공간화 리노베이션",
+    "background": "도서관 시설 노후화 및 가족 돌봄/체육 등 다목적 주민 커뮤니티 공간 부족",
+    "content": "노후 도서관을 리모델링하여 가족 돌봄 및 주민 커뮤니티가 합쳐진 복합문화공간으로 재창조",
+    "effect": "지역 주민 간 소통 증진 및 도서관 방문 연령층 확대"
+  },
+  "경남 함안군": {
+    "policy": "상호대차 공유 차량 시스템 및 작은도서관 보조",
+    "background": "지리적으로 넓은 군 지역 특성 대비 소형 도서관의 신속 대출 상차 한계",
+    "content": "작은도서관 상호대차 공유 차량 배차 및 소규모 시설 운영비 지원",
+    "effect": "지방 거주 주민들의 빠른 도서 상차 이용 및 접근 장벽 제거"
+  },
+  "경남 창녕군": {
+    "policy": "영유아 전용 북스타트 및 조기 독서 공간 도입",
+    "background": "출산 가정을 위한 보육 전용 시설 설계 및 영유아 맞춤형 독서 프로그램 부족",
+    "content": "도서관 내 영유아 전용 북스타트 공간 마련 및 영유아 지원 도서 꾸러미 보급",
+    "effect": "어린이 보육 환경 만족도 향상 및 도서관 친밀도 조기 형성"
+  },
+  "경남 고성군": {
+    "policy": "책나래 무료 택배 도서 대출 서비스",
+    "background": "도서관 방문이 물리적으로 소외된 교통 취약계층 및 거동불편 주민의 도서 향유 제약",
+    "content": "장애인 및 거동불편 주민 대상 무료 우체국 택배 도서 서비스(책나래) 구축",
+    "effect": "교통 및 거동 취약 주민의 도서 향유권 확대 및 지식 격차 보완"
+  },
+  "경남 남해군": {
+    "policy": "향토 역사 문화 특별 서재 및 은퇴 시니어 북클럽",
+    "background": "지역 고유의 역사 보존 요구 및 은퇴 고령자의 지적 여가 프로그램 부족",
+    "content": "지역 역사문화 아카이브 특별 서재 개설 및 시니어 중심 인문 북클럽 대대적 육성",
+    "effect": "고령자의 삶의 활력 충전 및 지역 향토 자료의 체계적 보존"
+  },
+  "경남 하동군": {
+    "policy": "도서관 지혜학교 프로그램 매년 유치",
+    "background": "농어촌 고령화 지역의 특성에 맞는 은퇴 준비 어르신 맞춤형 인문 소양 강좌 부족",
+    "content": "문체부 주관 도서관 지혜학교 공모 사업 매년 신청 및 평생 교육 연동 강좌 개설",
+    "effect": "농촌 어르신들의 지적 은퇴 설계 유도 및 평생교육 활성화"
+  },
+  "경남 산청군": {
+    "policy": "한방·대체의학 전문 보급 및 힐링 가드닝 교실",
+    "background": "산간 교통 취약지 어르신들을 위한 한방 웰빙 교양 및 정서 치유 콘텐츠 부족",
+    "content": "도서관 내 한방·대체의학 서재 마련 및 도서관 정원 연계 원예 힐링 프로그램 유치",
+    "effect": "농촌 어르신 밀착형 웰빙 학습 모델 활성화 및 정서적 안정"
+  },
+  "경남 함양군": {
+    "policy": "농촌형 이동도서관 차량 순회 운행",
+    "background": "지리적으로 고립된 산간 마을 및 면 단위 거주 노령층의 물리적 정보 접근성 배제",
+    "content": "이동도서관 차량을 최신 사양으로 도입하여 노인 복지회관 및 마을회관 위주로 정기 순회",
+    "effect": "교통 소외 지역의 지식 소외 극복 및 정서적 교류 거점 제공"
+  },
+  "경남 거창군": {
+    "policy": "길 위의 인문학 사업 및 주민 인문 아카데미",
+    "background": "야외 문화 탐방 인프라 및 주민들이 소통하는 인문학 커뮤니티 활성화 필요",
+    "content": "길 위의 인문학 사업 유치를 통해 야외 인문 콘서트 및 역사 문화 탐방 정례화",
+    "effect": "평생 학습 분위기 정착 및 주민 문화 향유권 제고"
+  },
+  "경남 합천군": {
+    "policy": "초노후 도서관 리모델링 및 주민 커뮤니티 북카페화",
+    "background": "1972년 개관한 초노후 도서관에 따른 주민 이용 기피 및 열람 분위기 침체",
+    "content": "노후 공공도서관 대상 현대적 공간 리모델링 및 북카페형 라운지 조성",
+    "effect": "주민 소통 활성화 및 어린이·청소년 등 이용 주민 다변화"
+  },
+  "경남 의령군": {
+    "policy": "작은도서관 내 청소년 미디어 창작 및 메이커 스페이스 설계",
+    "background": "농촌 거주 청소년을 위한 최신 IT/미디어 창작 교육 및 방과 후 놀이터 인프라 전무",
+    "content": "작은도서관 유휴 공간에 1인 미디어 크리에이터 장비 및 메이커 교육 공간 배치",
+    "effect": "청소년들의 창작 놀이터 활성화 및 과학 미디어 활용 교육 만족도 향상"
+  },
+  "경남 통영시": {
+    "policy": "통합 책이음 서비스 및 국가상호대차망 연동",
+    "background": "도서 및 해안 지역의 지리적 단절로 인한 개별 도서관 장서 부족 한계",
+    "content": "인접 지자체 간 도서관 통합 책이음 서비스와 국가상호대차(책바다)망 연동",
+    "effect": "물리적 공간 한계 극복 및 주민들의 도서 선택 장벽 완화"
+  }
+};
+
+
+// ─── 전국 도서관 정책 DB (공공데이터 공모전-3.docx 기반 20개 정책) ────────────────
+// 적합도 = ①문제지표×가중치 + ②지역조건보너스 + ③고령화보너스 + ④인구/도서관밀도보너스 + ⑤군집/소멸위험보너스
+const POLICIES = [
+  {
+    "id": 1,
+    "name": "공공도서관 건립지원",
+    "icon": "🏗️",
+    "type": "공공도서관 신축",
+    "desc": "문화체육관광부의 공공도서관 건립지원 사업은 지역 주민의 정보 격차 해소와 문화향유권 확대를 목적으로 공공도서관 건립과 노후 공공도서관 리모델링을 지원하는 사업이다. 문체부 자료에는 사업 목적이 “지역 주민의 정보 양극화 해소 및 문화향유권 확대”로 제시되어 있고, 지원 내용에 공공도서관 건립 및 노후 공공도서관 리모델링이 포함되어 있다.",
+    "problems": [
+      "도서관 총량 부족",
+      "중심 도서관 부재"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "인구 대비 공공도서관 수가 부족한 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 2,
+    "name": "공공도서관 리모델링, 공간개선",
+    "icon": "🔨",
+    "type": "노후 도서관 리모델링",
+    "desc": "서울시는 공공도서관 균형발전 정책에서 공공도서관 건립·리모델링 및 공간 개선 사업을 추진했고, 2019년부터 2025년까지 도서관 건립 66개관, 리모델링 및 공간개선 70개관 등 총 136개관을 건립·정비할 계획이라고 밝혔다.",
+    "problems": [
+      "시설 노후화",
+      "이용환경 저하"
+    ],
+    "indicators": [
+      "건물연식"
+    ],
+    "rec_target": "평균 개관연도 오래된 지역",
+    "cmri_conn": "건물연식",
+    "bg": "rgba(244,63,94,.08)",
+    "tc": "rgba(244,63,94,.18)",
+    "tt": "#fb7185"
+  },
+  {
+    "id": 3,
+    "name": "공공건축물 그린리모델링",
+    "icon": "🌿",
+    "type": "그린리모델링",
+    "desc": "공공도서관의 노후 시설을 개선하면서 에너지 효율을 높이는 방식이다. 서울시 공공도서관 공간 개선 사례와 문체부 공공도서관 리모델링 사업 범주 안에서 활용할 수 있다.",
+    "problems": [
+      "노후 시설",
+      "에너지 효율 저하"
+    ],
+    "indicators": [
+      "건물연식"
+    ],
+    "rec_target": "오래된 도서관이 많은 지역",
+    "cmri_conn": "건물연식",
+    "bg": "rgba(244,63,94,.08)",
+    "tc": "rgba(244,63,94,.18)",
+    "tt": "#fb7185"
+  },
+  {
+    "id": 4,
+    "name": "공립 작은도서관 조성",
+    "icon": "🏘️",
+    "type": "작은도서관 조성",
+    "desc": "작은도서관은 대형 공공도서관이 부족한 생활권 안에서 주민들이 가까운 곳에서 독서·문화 서비스를 이용할 수 있게 하는 보완 인프라로 활용된다. 생활SOC 복합화 사업의 10종 시설에도 공공도서관과 작은도서관이 포함되어 있으며, 작은도서관은 생활문화센터, 국민체육센터 등과 함께 복합화 대상 시설로 제시된다.",
+    "problems": [
+      "생활권 도서관 접근성 부족"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "대형 도서관 신축이 어려운 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 5,
+    "name": "작은도서관 운영비·자료구입비 지원",
+    "icon": "📚",
+    "type": "작은도서관 운영지원",
+    "desc": "작은도서관은 조성 이후에도 운영 인력, 장서, 프로그램 지원이 없으면 지속성이 떨어질 수 있다. 여러 지자체에서 작은도서관 운영지원 조례나 도서구입비 지원, 프로그램 지원을 운영하고 있으며, 정책 DB에는 작은도서관 조성과 별도로 “운영지원”을 독립 유형으로 넣는 것이 좋다.",
+    "problems": [
+      "장서 부족",
+      "프로그램 부족",
+      "운영 불안정"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "작은도서관은 있으나 운영력이 약한 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 6,
+    "name": "작은도서관 순회사서 지원",
+    "icon": "👩‍💼",
+    "type": "순회사서 지원",
+    "desc": "문체부는 2010년부터 매년 순회사서 지원사업을 통해 공공도서관에 순회사서를 파견하고, 관할 지역 내 작은도서관 운영을 지원해 왔다. 이 사업은 전문 사서 인력을 통해 작은도서관 운영 안정성을 높이고, 공공도서관과 작은도서관 간 협력 체계를 구축하는 데 목적이 있다.",
+    "problems": [
+      "사서 부족",
+      "작은도서관 전문성 부족"
+    ],
+    "indicators": [
+      "인구당사서"
+    ],
+    "rec_target": "사서 1인당 담당 인구가 높은 지역",
+    "cmri_conn": "인구당사서",
+    "bg": "rgba(245,158,11,.1)",
+    "tc": "rgba(245,158,11,.18)",
+    "tt": "#fbbf24"
+  },
+  {
+    "id": 7,
+    "name": "공공도서관 전문인력 확충",
+    "icon": "👨‍💼",
+    "type": "사서 인력 확충",
+    "desc": "공공도서관 전문인력 확충 정책은 운영 인력 부족, 서비스 질 저하 문제를 해결하고 도서관은 있으나 사서 수가 부족한 지역 지역에 추천되는 사서 인력 확충 유형의 정책입니다.",
+    "problems": [
+      "운영 인력 부족",
+      "서비스 질 저하"
+    ],
+    "indicators": [
+      "인구당사서"
+    ],
+    "rec_target": "도서관은 있으나 사서 수가 부족한 지역",
+    "cmri_conn": "인구당사서",
+    "bg": "rgba(245,158,11,.1)",
+    "tc": "rgba(245,158,11,.18)",
+    "tt": "#fbbf24"
+  },
+  {
+    "id": 8,
+    "name": "스마트도서관, 무인도서대출반납기",
+    "icon": "🤖",
+    "type": "스마트도서관",
+    "desc": "서울도서관은 스마트도서관을 “일천여 권의 신간도서를 대출·반납할 수 있는 무인도서관”으로 설명하며, 서울도서관 대출회원이면 365일 이용할 수 있다고 안내한다. 용인시도서관도 스마트도서관을 운영하며, 1인 3권 대출, 14일 대출기간 등의 이용규정을 제시한다.",
+    "problems": [
+      "운영시간 제약",
+      "접근성 부족"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "지하철역·청사·상업지 등 유동인구 많은 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 9,
+    "name": "U도서관, 예약대출기",
+    "icon": "📦",
+    "type": "무인예약대출기",
+    "desc": "강남구 U도서관은 도서관에 직접 방문하지 않아도 홈페이지에서 도서를 예약한 뒤 지하철역이나 공공장소에서 자료를 대출·반납할 수 있는 서비스로 운영된다. 이런 서비스는 물리적 도서관 신축 없이도 접근성을 높이는 정책으로 볼 수 있다.",
+    "problems": [
+      "도서관 방문 어려움",
+      "시간 제약"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "직장인·학생 유동인구가 많은 도심 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 10,
+    "name": "이동도서관, 순회도서관",
+    "icon": "🚌",
+    "type": "이동도서관",
+    "desc": "이동도서관은 넓은 면적, 낮은 인구밀도, 교통 취약 지역에서 도서관 접근성을 보완하는 방식으로 활용될 수 있다. 농촌형 군 지역이나 산간·도서 지역처럼 고정 시설을 촘촘히 배치하기 어려운 곳에 적합한 정책 유형이다.",
+    "problems": [
+      "저밀도·교통취약 지역 접근성 부족"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "농촌·산간·면적이 넓은 군 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 11,
+    "name": "지역 내 상호대차 서비스",
+    "icon": "🔄",
+    "type": "상호대차",
+    "desc": "상호대차는 한 도서관에 없는 자료를 다른 도서관에서 빌려 이용할 수 있게 하는 방식이다. 전국 단위로는 책바다 서비스가 있고, 지자체 단위로도 구립도서관 간 상호대차가 운영되는 경우가 많다.",
+    "problems": [
+      "장서 편차",
+      "도서관별 자료 부족"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "도서관 수는 있으나 장서 편중이 큰 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 12,
+    "name": "책이음 서비스",
+    "icon": "🔗",
+    "type": "책이음",
+    "desc": "국립중앙도서관 서비스 안내에 따르면 책이음은 “이용증 하나로 도서관에서 대출을 간편하게” 하는 서비스다. 즉 하나의 회원증으로 참여 도서관을 이용하게 해 지역 간 도서관 이용 편의성을 높이는 정책으로 볼 수 있다.",
+    "problems": [
+      "도서관별 회원체계 분리",
+      "이용 불편"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "생활권 이동이 많은 지역",
+    "cmri_conn": "교통불편",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 13,
+    "name": "국가상호대차 서비스",
+    "icon": "🌊",
+    "type": "책바다",
+    "desc": "국립중앙도서관 책바다 서비스는 협약망 내 도서관 소장 자료를 교환하여 이용할 수 있게 하는 전국 도서관 공동 활용 서비스다. 국립중앙도서관은 책바다를 “꼭 읽고 싶은데 근처에 없는 책, 가까운 도서관에서 만나는 방법”으로 설명한다.",
+    "problems": [
+      "지역 내 없는 자료 접근 어려움"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "전문자료·희망도서 접근성이 낮은 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 14,
+    "name": "장애인 무료 택배 도서 서비스",
+    "icon": "📬",
+    "type": "책나래",
+    "desc": "서울도서관 안내에 따르면 책나래 서비스는 도서관 방문 이용이 어려운 장애인 등을 위해 필요한 도서관 자료를 우체국 택배로 무료 제공하는 서비스다.",
+    "problems": [
+      "장애인·거동불편자 접근성 부족"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "고령층·장애인 비율이 높은 지역",
+    "cmri_conn": "교통불편",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 15,
+    "name": "공공도서관+생활문화센터+체육시설 복합화",
+    "icon": "🏛️",
+    "type": "생활SOC 복합화",
+    "desc": "생활SOC 복합화 사업은 공공도서관, 작은도서관, 국민체육센터, 생활문화센터, 국공립어린이집, 주민건강센터 등 생활SOC 시설을 복합화하는 정책이다. 자료에 따르면 생활SOC 복합화는 기존 부처별 칸막이식 공급 방식의 한계를 보완하고, 2개 이상 시설을 포함해 복합화하는 경우 국고보조율 인센티브를 부여하는 구조로 설명된다.",
+    "problems": [
+      "부지 부족",
+      "단일 시설 한계"
+    ],
+    "indicators": [
+      "건물연식"
+    ],
+    "rec_target": "도서관·문화·체육 인프라가 함께 부족한 지역",
+    "cmri_conn": "건물연식, 자원부족",
+    "bg": "rgba(244,63,94,.08)",
+    "tc": "rgba(244,63,94,.18)",
+    "tt": "#fb7185"
+  },
+  {
+    "id": 16,
+    "name": "복합문화센터, 복합문화공간",
+    "icon": "🎭",
+    "type": "복합문화센터 조성",
+    "desc": "복합문화센터는 도서관, 생활문화센터, 체육시설, 가족센터, 돌봄시설 등 여러 기능을 한 공간에 결합하는 방식이다. 생활SOC 복합화 사업과 연결해 볼 수 있으며, 도서관을 단순 독서 공간이 아니라 생활문화 거점으로 전환하는 정책 유형이다.",
+    "problems": [
+      "도서관 기능 부족",
+      "문화공간 부족"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "단순 열람 중심 시설이 많은 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 17,
+    "name": "어린이복합문화공간, 아동친화 도서관",
+    "icon": "🎠",
+    "type": "어린이복합문화공간",
+    "desc": "부산의 ‘들락날락’처럼 어린이복합문화공간은 도서관 기능에 놀이, 디지털 체험, 미디어아트, 독서 프로그램 등을 결합하는 방식이다. 이 정책은 도서관을 아동친화적 학습·놀이 공간으로 확장한다.",
+    "problems": [
+      "어린이·가족 문화공간 부족"
+    ],
+    "indicators": [
+      "건물연식"
+    ],
+    "rec_target": "아동·가족 수요가 높은 지역",
+    "cmri_conn": "건물연식",
+    "bg": "rgba(244,63,94,.08)",
+    "tc": "rgba(244,63,94,.18)",
+    "tt": "#fb7185"
+  },
+  {
+    "id": 18,
+    "name": "미디어창작실, 디지털자료실, 메이커스페이스",
+    "icon": "💻",
+    "type": "디지털 체험공간",
+    "desc": "최근 신축·리모델링 도서관에서는 멀티미디어실, 미디어 창작실, 디지털 체험존 등이 자주 포함된다. 이는 도서관을 단순 열람 공간에서 디지털 학습·창작 공간으로 확장하는 정책 유형이다.",
+    "problems": [
+      "디지털 격차",
+      "청소년 이용 저하"
+    ],
+    "indicators": [
+      "건물연식"
+    ],
+    "rec_target": "청소년·청년 이용 활성화가 필요한 지역",
+    "cmri_conn": "건물연식",
+    "bg": "rgba(244,63,94,.08)",
+    "tc": "rgba(244,63,94,.18)",
+    "tt": "#fb7185"
+  },
+  {
+    "id": 19,
+    "name": "독서동아리, 작가와의 만남, 문화강좌",
+    "icon": "📖",
+    "type": "독서문화 프로그램",
+    "desc": "독서동아리, 작가와의 만남, 문화강좌 정책은 도서관 이용률 저하, 프로그램 부족 문제를 해결하고 시설은 있으나 이용 활성화가 낮은 지역 지역에 추천되는 독서문화 프로그램 유형의 정책입니다.",
+    "problems": [
+      "도서관 이용률 저하",
+      "프로그램 부족"
+    ],
+    "indicators": [
+      "인구당사서"
+    ],
+    "rec_target": "시설은 있으나 이용 활성화가 낮은 지역",
+    "cmri_conn": "인구당사서",
+    "bg": "rgba(245,158,11,.1)",
+    "tc": "rgba(245,158,11,.18)",
+    "tt": "#fbbf24"
+  },
+  {
+    "id": 20,
+    "name": "도서관 길 위의 인문학",
+    "icon": "🎓",
+    "type": "길 위의 인문학",
+    "desc": "도서관 「길 위의 인문학」은 문화체육관광부 주최, 한국도서관협회 주관으로 운영되어 온 인문 프로그램이다. 2013년부터 전국 공공·대학도서관에서 지역주민에게 인문 향유와 생활 속 인문독서 기회를 제공해 왔다.",
+    "problems": [
+      "지역 인문문화 프로그램 부족"
+    ],
+    "indicators": [
+      "인구당사서"
+    ],
+    "rec_target": "성인·지역주민 문화 프로그램이 부족한 지역",
+    "cmri_conn": "인구당사서",
+    "bg": "rgba(245,158,11,.1)",
+    "tc": "rgba(245,158,11,.18)",
+    "tt": "#fbbf24"
+  },
+  {
+    "id": 21,
+    "name": "도서관 지혜학교",
+    "icon": "🏫",
+    "type": "지혜학교",
+    "desc": "2026년 길 위의 인문학·지혜학교 운영기관 공모 안내에 따르면, 이 사업은 사회문화시설 기반 지역 및 생애 맞춤형 인문 프로그램 확산을 목적으로 한다.",
+    "problems": [
+      "중장년·성인 대상 인문교육 부족"
+    ],
+    "indicators": [
+      "인구당사서"
+    ],
+    "rec_target": "고령층·중장년층이 많은 지역",
+    "cmri_conn": "인구당사서",
+    "bg": "rgba(245,158,11,.1)",
+    "tc": "rgba(245,158,11,.18)",
+    "tt": "#fbbf24"
+  },
+  {
+    "id": 22,
+    "name": "영유아 독서지원, 생애초기 독서지원",
+    "icon": "👶",
+    "type": "북스타트",
+    "desc": "북스타트는 많은 지자체 도서관에서 영유아와 보호자를 대상으로 운영하는 독서문화 프로그램이다. 전국 공통 정책 DB에는 “생애초기 독서지원” 유형으로 넣는 것이 적절하다.",
+    "problems": [
+      "영유아·가족 독서문화 부족"
+    ],
+    "indicators": [
+      "인구당사서"
+    ],
+    "rec_target": "영유아·가족 단위 수요가 있는 지역",
+    "cmri_conn": "인구당사서",
+    "bg": "rgba(245,158,11,.1)",
+    "tc": "rgba(245,158,11,.18)",
+    "tt": "#fbbf24"
+  },
+  {
+    "id": 23,
+    "name": "지역특화 도서관, 주제전문 도서관",
+    "icon": "🎨",
+    "type": "특화도서관",
+    "desc": "지역특화 도서관, 주제전문 도서관 정책은 지역 정체성·특화 콘텐츠 부족 문제를 해결하고 관광·산업·역사 자원이 있는 지역 지역에 추천되는 특화도서관 유형의 정책입니다.",
+    "problems": [
+      "지역 정체성·특화 콘텐츠 부족"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "관광·산업·역사 자원이 있는 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 24,
+    "name": "자료구입비 지원, 희망도서 구입",
+    "icon": "📚",
+    "type": "도서관 장서 확충",
+    "desc": "자료구입비 지원, 희망도서 구입 정책은 장서 부족, 신간 부족 문제를 해결하고 도서관은 있으나 장서 규모가 부족한 지역 지역에 추천되는 도서관 장서 확충 유형의 정책입니다.",
+    "problems": [
+      "장서 부족",
+      "신간 부족"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "도서관은 있으나 장서 규모가 부족한 지역",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 25,
+    "name": "야간개관, 주말개관",
+    "icon": "⏰",
+    "type": "도서관 개방시간 확대",
+    "desc": "야간개관, 주말개관 정책은 이용시간 제약 문제를 해결하고 직장인·학생 비율이 높은 지역 지역에 추천되는 도서관 개방시간 확대 유형의 정책입니다.",
+    "problems": [
+      "이용시간 제약"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "직장인·학생 비율이 높은 지역",
+    "cmri_conn": "교통불편",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 26,
+    "name": "학교도서관-공공도서관 협력",
+    "icon": "🏫",
+    "type": "학교·공공도서관 연계",
+    "desc": "학교도서관-공공도서관 협력 정책은 청소년 독서 접근성 부족 문제를 해결하고 청소년 인구가 많거나 학교 밀집 지역 지역에 추천되는 학교·공공도서관 연계 유형의 정책입니다.",
+    "problems": [
+      "청소년 독서 접근성 부족"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "청소년 인구가 많거나 학교 밀집 지역",
+    "cmri_conn": "교통불편",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 27,
+    "name": "지역서점 희망도서 바로대출",
+    "icon": "🛒",
+    "type": "지역서점 연계",
+    "desc": "지역서점 희망도서 바로대출 정책은 신간 접근성 부족, 지역서점 침체 문제를 해결하고 지역서점과 도서관 협력이 가능한 도시 지역에 추천되는 지역서점 연계 유형의 정책입니다.",
+    "problems": [
+      "신간 접근성 부족",
+      "지역서점 침체"
+    ],
+    "indicators": [
+      "자원부족"
+    ],
+    "rec_target": "지역서점과 도서관 협력이 가능한 도시",
+    "cmri_conn": "자원부족",
+    "bg": "rgba(99,102,241,.14)",
+    "tc": "rgba(99,102,241,.22)",
+    "tt": "#818cf8"
+  },
+  {
+    "id": 28,
+    "name": "통합도서관 홈페이지, 모바일 앱",
+    "icon": "🌐",
+    "type": "도서관 통합플랫폼",
+    "desc": "통합도서관 홈페이지, 모바일 앱 정책은 정보 분산, 이용 편의성 부족 문제를 해결하고 도서관 수가 많지만 서비스가 분산된 지역 지역에 추천되는 도서관 통합플랫폼 유형의 정책입니다.",
+    "problems": [
+      "정보 분산",
+      "이용 편의성 부족"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "도서관 수가 많지만 서비스가 분산된 지역",
+    "cmri_conn": "교통불편",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 29,
+    "name": "다문화·장애인·노인 독서지원",
+    "icon": "🤝",
+    "type": "취약계층 독서지원",
+    "desc": "다문화·장애인·노인 독서지원 정책은 문화복지 사각지대 문제를 해결하고 고령층·다문화·장애인 비율이 높은 지역 지역에 추천되는 취약계층 독서지원 유형의 정책입니다.",
+    "problems": [
+      "문화복지 사각지대"
+    ],
+    "indicators": [
+      "교통불편"
+    ],
+    "rec_target": "고령층·다문화·장애인 비율이 높은 지역",
+    "cmri_conn": "교통불편",
+    "bg": "rgba(6,182,212,.13)",
+    "tc": "rgba(6,182,212,.2)",
+    "tt": "#22d3ee"
+  },
+  {
+    "id": 30,
+    "name": "내진보강, 석면제거, 냉난방 개선",
+    "icon": "🛡️",
+    "type": "도서관 안전·환경개선",
+    "desc": "내진보강, 석면제거, 냉난방 개선 정책은 노후 시설 안전 문제 문제를 해결하고 오래된 공공도서관이 많은 지역 지역에 추천되는 도서관 안전·환경개선 유형의 정책입니다.",
+    "problems": [
+      "노후 시설 안전 문제"
+    ],
+    "indicators": [
+      "건물연식"
+    ],
+    "rec_target": "오래된 공공도서관이 많은 지역",
+    "cmri_conn": "건물연식",
+    "bg": "rgba(244,63,94,.08)",
+    "tc": "rgba(244,63,94,.18)",
+    "tt": "#fb7185"
+  }
+];
+
+// ─── CULTURAL SIMILARITY DATABASE ──────────────
+const CULTURAL_SIMILARITY = {
+  "동구": {
+    "sido": "부산",
+    "matched_seoul": "구로구",
+    "similarity": 0.4913,
+    "sims_to_seoul": {
+      "광진구": 0.2406,
+      "중구": 0.3583,
+      "성동구": 0.352,
+      "용산구": 0.3521,
+      "종로구": 0.1426,
+      "중랑구": 0.1,
+      "강북구": 0.1003,
+      "도봉구": 0.1701,
+      "성북구": 0.1617,
+      "동대문구": 0.2394,
+      "노원구": 0.1561,
+      "마포구": 0.1672,
+      "양천구": 0.4729,
+      "은평구": 0.3084,
+      "강서구": 0.4494,
+      "금천구": 0.2877,
+      "영등포구": 0.4644,
+      "서대문구": 0.1913,
+      "동작구": 0.3366,
+      "관악구": 0.2476,
+      "서초구": 0.1065,
+      "강남구": 0.1957,
+      "구로구": 0.4913,
+      "송파구": 0.1941,
+      "강동구": 0.1575
+    },
+    "keywords": [
+      "역사·전통형 (역사, 조선통신사역사관, 문화)",
+      "산업·업무형 (국가, 정보, 단지)",
+      "해양문화형 (해안)",
+      "생활문화형 (교육)",
+      "청년문화형 (복합)",
+      "자연·생태형 (하천)"
+    ],
+    "matched_keywords": [
+      "산업·업무형 (국가, 단지, 철도)",
+      "역사·전통형 (문화재, 역사, 한성상가)",
+      "청년문화형 (버스, 대학, 예림디자인고등학교)",
+      "생활문화형 (생활, 교육, 평생교육)",
+      "해양문화형 (구일섬)",
+      "자연·생태형 (자연, 전거)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "해양문화형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "산업·업무형",
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 동구와 서울 구로구는 <strong>산업·업무형</strong> 문화 자원의 비중이 높고, <strong>국가, 정보, 단지, 철도</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "구로구 G밸리 근로자 야간 인문학 콘서트 및 직장인 맞춤형 모바일 스마트도서관",
+      "objective": "산업단지 직장인의 생활 패턴에 적합한 야간 교양 강좌와 모바일 예약 대출 등 맞춤형 인프라 확충",
+      "content": "G밸리 직장인 대상 퇴근길 인문 독서 특강 및 독서 토론 동아리 지원, 공공장소 내 모바일 예약 도서 무인 대출기 가동",
+      "effect": "산업단지 근로자의 문화 접근성 대폭 보완, 일과 삶의 균형을 돕는 도서 복지 실현",
+      "category": "산업·업무형"
+    }
+  },
+  "서구": {
+    "sido": "부산",
+    "matched_seoul": "동작구",
+    "similarity": 0.4236,
+    "sims_to_seoul": {
+      "광진구": 0.3337,
+      "중구": 0.3061,
+      "성동구": 0.3627,
+      "용산구": 0.1864,
+      "종로구": 0.1862,
+      "중랑구": 0.1892,
+      "강북구": 0.1818,
+      "도봉구": 0.1942,
+      "성북구": 0.1751,
+      "동대문구": 0.2394,
+      "노원구": 0.1726,
+      "마포구": 0.1,
+      "양천구": 0.3049,
+      "은평구": 0.1926,
+      "강서구": 0.1461,
+      "금천구": 0.1846,
+      "영등포구": 0.2749,
+      "서대문구": 0.1917,
+      "동작구": 0.4236,
+      "관악구": 0.1819,
+      "서초구": 0.2214,
+      "강남구": 0.1886,
+      "구로구": 0.2741,
+      "송파구": 0.2678,
+      "강동구": 0.1861
+    },
+    "keywords": [
+      "해양문화형 (송도해수욕장, 수산물, 해양)",
+      "역사·전통형 (문화, 역사, 고려)",
+      "자연·생태형 (태종, 산책로, 자연)",
+      "생활문화형 (교육, 생활)",
+      "청년문화형 (대학, 예술)",
+      "산업·업무형 (국가)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "해양문화형",
+      "역사·전통형",
+      "자연·생태형",
+      "생활문화형",
+      "청년문화형",
+      "산업·업무형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 서구와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>문화, 역사, 고려, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "영도구": {
+    "sido": "부산",
+    "matched_seoul": "동대문구",
+    "similarity": 0.4949,
+    "sims_to_seoul": {
+      "광진구": 0.4905,
+      "중구": 0.4469,
+      "성동구": 0.4909,
+      "용산구": 0.4721,
+      "종로구": 0.4441,
+      "중랑구": 0.4706,
+      "강북구": 0.4509,
+      "도봉구": 0.4874,
+      "성북구": 0.438,
+      "동대문구": 0.4949,
+      "노원구": 0.4309,
+      "마포구": 0.1,
+      "양천구": 0.4199,
+      "은평구": 0.4916,
+      "강서구": 0.3539,
+      "금천구": 0.4664,
+      "영등포구": 0.4188,
+      "서대문구": 0.477,
+      "동작구": 0.429,
+      "관악구": 0.461,
+      "서초구": 0.365,
+      "강남구": 0.4424,
+      "구로구": 0.3435,
+      "송파구": 0.487,
+      "강동구": 0.4362
+    },
+    "keywords": [
+      "역사·전통형 (역사, 조선, 국립해양박물관)",
+      "자연·생태형 (태종대, 태종, 전거)",
+      "산업·업무형 (국가, 기업체)",
+      "청년문화형 (버스)",
+      "생활문화형 (교육)",
+      "해양문화형 (앞바다)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 조선, 사적)",
+      "자연·생태형 (하천, 자전거, 전거)",
+      "산업·업무형 (국가, 철도)",
+      "생활문화형 (생활, 교육, 평생교육)",
+      "해양문화형 (시장)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 영도구와 서울 동대문구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 조선, 국립해양박물관, 사적</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동대문구 공공도서관 동의보감 한방 웰니스 건강 인문학 강좌 및 생활 웰빙 교실",
+      "objective": "지역 역사 자원과 연계하여 도서관 내에 건강·예방 전문 인문 학습 서비스 제공",
+      "content": "한방 및 대체의학 건강 도서 코너 운영, 동의보감 현대적 재해석 건강 인문 특강, 도서관 옥상정원 연계 원예 힐링 프로그램",
+      "effect": "특화 지식 정보 인프라 제공, 중장년 및 어르신의 평생 교육 참여 증대",
+      "category": "역사·전통형"
+    }
+  },
+  "부산진구": {
+    "sido": "부산",
+    "matched_seoul": "구로구",
+    "similarity": 0.4841,
+    "sims_to_seoul": {
+      "광진구": 0.2822,
+      "중구": 0.3416,
+      "성동구": 0.3567,
+      "용산구": 0.3097,
+      "종로구": 0.1547,
+      "중랑구": 0.1078,
+      "강북구": 0.1,
+      "도봉구": 0.1713,
+      "성북구": 0.14,
+      "동대문구": 0.2312,
+      "노원구": 0.1338,
+      "마포구": 0.2881,
+      "양천구": 0.4676,
+      "은평구": 0.2709,
+      "강서구": 0.3859,
+      "금천구": 0.249,
+      "영등포구": 0.4341,
+      "서대문구": 0.1805,
+      "동작구": 0.3496,
+      "관악구": 0.2107,
+      "서초구": 0.2069,
+      "강남구": 0.2143,
+      "구로구": 0.4841,
+      "송파구": 0.1985,
+      "강동구": 0.1854
+    },
+    "keywords": [
+      "산업·업무형 (철도, 국가)",
+      "역사·전통형 (역사, 조선)",
+      "생활문화형 (교육)",
+      "해양문화형 (시장, 바다)",
+      "청년문화형 (대학)",
+      "자연·생태형 (전거)"
+    ],
+    "matched_keywords": [
+      "산업·업무형 (국가, 단지, 철도)",
+      "역사·전통형 (문화재, 역사, 한성상가)",
+      "청년문화형 (버스, 대학, 예림디자인고등학교)",
+      "생활문화형 (생활, 교육, 평생교육)",
+      "해양문화형 (구일섬)",
+      "자연·생태형 (자연, 전거)"
+    ],
+    "categories": [
+      "산업·업무형",
+      "역사·전통형",
+      "생활문화형",
+      "해양문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "산업·업무형",
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 부산진구와 서울 구로구는 <strong>산업·업무형</strong> 문화 자원의 비중이 높고, <strong>철도, 국가, 단지</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "구로구 G밸리 근로자 야간 인문학 콘서트 및 직장인 맞춤형 모바일 스마트도서관",
+      "objective": "산업단지 직장인의 생활 패턴에 적합한 야간 교양 강좌와 모바일 예약 대출 등 맞춤형 인프라 확충",
+      "content": "G밸리 직장인 대상 퇴근길 인문 독서 특강 및 독서 토론 동아리 지원, 공공장소 내 모바일 예약 도서 무인 대출기 가동",
+      "effect": "산업단지 근로자의 문화 접근성 대폭 보완, 일과 삶의 균형을 돕는 도서 복지 실현",
+      "category": "산업·업무형"
+    }
+  },
+  "남구": {
+    "sido": "부산",
+    "matched_seoul": "중구",
+    "similarity": 0.4946,
+    "sims_to_seoul": {
+      "광진구": 0.3696,
+      "중구": 0.4946,
+      "성동구": 0.3623,
+      "용산구": 0.3769,
+      "종로구": 0.4268,
+      "중랑구": 0.2168,
+      "강북구": 0.2053,
+      "도봉구": 0.2164,
+      "성북구": 0.2201,
+      "동대문구": 0.2181,
+      "노원구": 0.2215,
+      "마포구": 0.1,
+      "양천구": 0.2832,
+      "은평구": 0.3692,
+      "강서구": 0.1495,
+      "금천구": 0.3215,
+      "영등포구": 0.1248,
+      "서대문구": 0.4013,
+      "동작구": 0.3128,
+      "관악구": 0.3071,
+      "서초구": 0.4465,
+      "강남구": 0.4858,
+      "구로구": 0.2747,
+      "송파구": 0.3163,
+      "강동구": 0.1744
+    },
+    "keywords": [
+      "역사·전통형 (역사, 문화, 문화재)",
+      "청년문화형 (공연장, 공연, 극장)",
+      "산업·업무형 (단지, 국가, 철도)",
+      "자연·생태형 (공간, 공원, 전거)",
+      "해양문화형 (해양, 부두, 해안)",
+      "생활문화형 (교육, 센터)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 조선, 궁궐)",
+      "산업·업무형 (국가, 산업, 발전)",
+      "청년문화형 (극장, 공연, 복합)",
+      "해양문화형 (시장)",
+      "자연·생태형 (공원, 하천, 자연)",
+      "생활문화형 (교육, 평생)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "청년문화형",
+      "산업·업무형",
+      "자연·생태형",
+      "해양문화형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "청년문화형",
+      "해양문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "match_reason": "부산 남구와 서울 중구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 문화, 문화재, 조선</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "중구 퇴근길 스마트도서관 무인 예약대출 및 직장인 야간 인문 독서 동아리",
+      "objective": "직장인 유동인구가 많은 도심 권역에 시공간 제약 없는 무인 도서 예약 서비스 및 야간 문화강좌 제공",
+      "content": "지하철역 거점 24시간 U-도서관 스마트기기 확충, 퇴근길 직장인 대상 테마별 북큐레이션 및 소규모 독서토론 모임 개설",
+      "effect": "도심 직장인의 도서관 이용 장벽 제거, 바쁜 일상 속 비대면 독서 접근성 제고",
+      "category": "산업·업무형"
+    }
+  },
+  "동래구": {
+    "sido": "부산",
+    "matched_seoul": "도봉구",
+    "similarity": 0.4766,
+    "sims_to_seoul": {
+      "광진구": 0.4583,
+      "중구": 0.3073,
+      "성동구": 0.4392,
+      "용산구": 0.4068,
+      "종로구": 0.2973,
+      "중랑구": 0.4158,
+      "강북구": 0.3651,
+      "도봉구": 0.4766,
+      "성북구": 0.327,
+      "동대문구": 0.459,
+      "노원구": 0.3162,
+      "마포구": 0.1,
+      "양천구": 0.3815,
+      "은평구": 0.4155,
+      "강서구": 0.3031,
+      "금천구": 0.3485,
+      "영등포구": 0.4298,
+      "서대문구": 0.3627,
+      "동작구": 0.3057,
+      "관악구": 0.3438,
+      "서초구": 0.2663,
+      "강남구": 0.3185,
+      "구로구": 0.2924,
+      "송파구": 0.3823,
+      "강동구": 0.3453
+    },
+    "keywords": [
+      "역사·전통형 (역사, 문화재, 고려)",
+      "자연·생태형 (온천, 온천천, 온천제)",
+      "산업·업무형 (철도, 국가)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 조선, 역사)",
+      "자연·생태형 (하천, 계곡, 자연환경)",
+      "산업·업무형 (국가, 철도)",
+      "생활문화형 (교육)",
+      "청년문화형 (세그루패션디자인고등학교)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "match_reason": "부산 동래구와 서울 도봉구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 문화재, 고려, 조선</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "도봉구 공공도서관 평화문화진지 연계 예술 인문학 특강 및 북아트 교실",
+      "objective": "도서관과 생활문화 재생 거점을 융합하여 주민 참여형 예술·인문학 평생학습 교실 활성화",
+      "content": "평화문화진지 내 도서 서재 활용 독서 토론회, 예술가와 함께하는 그림책 북아트 주민 창작 클래스, 역사 인문 교실",
+      "effect": "지역 문화 공간 재생 시너지 극대화, 구민의 문화 예술 인문 소양 증진",
+      "category": "생활문화형"
+    }
+  },
+  "북구": {
+    "sido": "부산",
+    "matched_seoul": "영등포구",
+    "similarity": 0.4887,
+    "sims_to_seoul": {
+      "광진구": 0.3781,
+      "중구": 0.3092,
+      "성동구": 0.4055,
+      "용산구": 0.4446,
+      "종로구": 0.2138,
+      "중랑구": 0.2485,
+      "강북구": 0.1962,
+      "도봉구": 0.3616,
+      "성북구": 0.2024,
+      "동대문구": 0.3825,
+      "노원구": 0.1845,
+      "마포구": 0.1,
+      "양천구": 0.4868,
+      "은평구": 0.4204,
+      "강서구": 0.3988,
+      "금천구": 0.3447,
+      "영등포구": 0.4887,
+      "서대문구": 0.2905,
+      "동작구": 0.2206,
+      "관악구": 0.2963,
+      "서초구": 0.2079,
+      "강남구": 0.2927,
+      "구로구": 0.4136,
+      "송파구": 0.2752,
+      "강동구": 0.2884
+    },
+    "keywords": [
+      "역사·전통형 (역사, 삼국, 고려)",
+      "산업·업무형 (국가, 철도)",
+      "자연·생태형 (태종, 을숙, 강변대로)",
+      "생활문화형 (교육)",
+      "청년문화형 (대학)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 조선, 문화)",
+      "산업·업무형 (국가, 단지, 기업체)",
+      "자연·생태형 (공원, 자연, 생태)",
+      "생활문화형 (정책, 교육, 센터)",
+      "해양문화형 (밤섬, 시장)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "자연·생태형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "자연·생태형",
+      "생활문화형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 북구와 서울 영등포구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 삼국, 고려, 조선</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "영등포구 문래예술창작소 연계 독서 갤러리 교실 및 여의도 봄꽃 야외 책마당",
+      "objective": "주민 창작 예술인과 공공도서관을 매칭해 문학적 소통 기회를 확장하고 다채로운 야외 독서 축제 운영",
+      "content": "도서관 연계 시화 창작 주민 동아리 교실, 봄꽃 축제 기간 한강 여의나루 공원 내 야외 간이 책마당 및 북토크 개최",
+      "effect": "주민 주도 생활 예술 독서 확대, 공공장소 야외 독서 붐 조성을 통한 도서 인프라 친밀감 극대화",
+      "category": "생활문화형"
+    }
+  },
+  "중구": {
+    "sido": "부산",
+    "matched_seoul": "동작구",
+    "similarity": 0.466,
+    "sims_to_seoul": {
+      "광진구": 0.316,
+      "중구": 0.3563,
+      "성동구": 0.3809,
+      "용산구": 0.1973,
+      "종로구": 0.1695,
+      "중랑구": 0.1055,
+      "강북구": 0.1082,
+      "도봉구": 0.12,
+      "성북구": 0.1299,
+      "동대문구": 0.2032,
+      "노원구": 0.1254,
+      "마포구": 0.1,
+      "양천구": 0.3796,
+      "은평구": 0.1914,
+      "강서구": 0.1883,
+      "금천구": 0.1955,
+      "영등포구": 0.3072,
+      "서대문구": 0.1674,
+      "동작구": 0.466,
+      "관악구": 0.172,
+      "서초구": 0.2195,
+      "강남구": 0.1907,
+      "구로구": 0.3609,
+      "송파구": 0.2458,
+      "강동구": 0.1721
+    },
+    "keywords": [
+      "역사·전통형 (계절풍, 역사, 조선)",
+      "해양문화형 (바다, 시장, 항만)",
+      "산업·업무형 (국가, 철도, 기업)",
+      "생활문화형 (책방, 교육)",
+      "청년문화형 (골목, 거리)",
+      "자연·생태형 (공원)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 중구와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>계절풍, 역사, 조선, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "해운대구": {
+    "sido": "부산",
+    "matched_seoul": "동작구",
+    "similarity": 0.4528,
+    "sims_to_seoul": {
+      "광진구": 0.3072,
+      "중구": 0.3287,
+      "성동구": 0.3755,
+      "용산구": 0.222,
+      "종로구": 0.1719,
+      "중랑구": 0.1681,
+      "강북구": 0.1732,
+      "도봉구": 0.182,
+      "성북구": 0.1922,
+      "동대문구": 0.2546,
+      "노원구": 0.1881,
+      "마포구": 0.1,
+      "양천구": 0.3758,
+      "은평구": 0.22,
+      "강서구": 0.25,
+      "금천구": 0.2297,
+      "영등포구": 0.3564,
+      "서대문구": 0.1866,
+      "동작구": 0.4528,
+      "관악구": 0.2144,
+      "서초구": 0.1715,
+      "강남구": 0.1734,
+      "구로구": 0.3542,
+      "송파구": 0.2689,
+      "강동구": 0.2126
+    },
+    "keywords": [
+      "해양문화형 (해수욕장, 연안, 송정해수욕장)",
+      "역사·전통형 (조선, 역사, 절경)",
+      "산업·업무형 (국가, 산업, 모기업)",
+      "생활문화형 (교육, 생활, 평생교육)",
+      "자연·생태형 (전거)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "해양문화형",
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 해운대구와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>조선, 역사, 절경, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "금정구": {
+    "sido": "부산",
+    "matched_seoul": "양천구",
+    "similarity": 0.4709,
+    "sims_to_seoul": {
+      "광진구": 0.3359,
+      "중구": 0.2706,
+      "성동구": 0.3539,
+      "용산구": 0.3794,
+      "종로구": 0.1452,
+      "중랑구": 0.163,
+      "강북구": 0.1081,
+      "도봉구": 0.2829,
+      "성북구": 0.1131,
+      "동대문구": 0.2888,
+      "노원구": 0.1,
+      "마포구": 0.315,
+      "양천구": 0.4709,
+      "은평구": 0.333,
+      "강서구": 0.3849,
+      "금천구": 0.2454,
+      "영등포구": 0.4635,
+      "서대문구": 0.2057,
+      "동작구": 0.1845,
+      "관악구": 0.2008,
+      "서초구": 0.2382,
+      "강남구": 0.248,
+      "구로구": 0.4508,
+      "송파구": 0.1792,
+      "강동구": 0.1964
+    },
+    "keywords": [
+      "산업·업무형 (철도, 국가, 산업도로)",
+      "자연·생태형 (온천천, 하천, 온천장역)",
+      "역사·전통형 (역사, 조선, 고려)",
+      "생활문화형 (교육, 평생교육)",
+      "청년문화형 (버스)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (구릉지, 역사, 문화재)",
+      "산업·업무형 (단지, 국가, 철도)",
+      "생활문화형 (센터, 교육, 학습)",
+      "자연·생태형 (습지, 배후저습지, 배후습지)",
+      "청년문화형 (버스)",
+      "해양문화형 (시장, 연안)"
+    ],
+    "categories": [
+      "산업·업무형",
+      "자연·생태형",
+      "역사·전통형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "자연·생태형",
+      "청년문화형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 금정구와 서울 양천구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 조선, 고려, 구릉지</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "양천구 서서울호수공원 소리 도서관 및 친환경 에코 독서 교육",
+      "objective": "친환경 생태 공원 내 수변 공간에서 음악·소리 도서관 서비스를 통해 친환경 심리 정화 교육 제공",
+      "content": "공원 내 오디오북 리스닝 숲속 부스 운영, 어린이 생태 환경 독서 골든벨, 자원 순환 북아트 주민 프로그램",
+      "effect": "수변 녹지 활용 독서 공간의 다각화, 구민의 생태 감수성 및 환경 보호 인식 고취",
+      "category": "자연·생태형"
+    }
+  },
+  "강서구": {
+    "sido": "부산",
+    "matched_seoul": "강서구",
+    "similarity": 0.4891,
+    "sims_to_seoul": {
+      "광진구": 0.3168,
+      "중구": 0.4076,
+      "성동구": 0.4096,
+      "용산구": 0.4384,
+      "종로구": 0.272,
+      "중랑구": 0.3014,
+      "강북구": 0.3047,
+      "도봉구": 0.3417,
+      "성북구": 0.3463,
+      "동대문구": 0.3771,
+      "노원구": 0.3447,
+      "마포구": 0.1,
+      "양천구": 0.4362,
+      "은평구": 0.4187,
+      "강서구": 0.4891,
+      "금천구": 0.4006,
+      "영등포구": 0.4879,
+      "서대문구": 0.3354,
+      "동작구": 0.3891,
+      "관악구": 0.3901,
+      "서초구": 0.1276,
+      "강남구": 0.2778,
+      "구로구": 0.4323,
+      "송파구": 0.3333,
+      "강동구": 0.2584
+    },
+    "keywords": [
+      "역사·전통형 (문화재, 역사, 조선)",
+      "산업·업무형 (철도, 단지, 국가)",
+      "해양문화형 (바다, 해안, 해안가)",
+      "자연·생태형 (하천, 태종, 철새)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 역사, 사적)",
+      "산업·업무형 (김포공항역, 국가, 국제공항)",
+      "생활문화형 (교육, 평생)",
+      "청년문화형 (대학, 버스)",
+      "자연·생태형 (전거)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "해양문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 강서구와 서울 강서구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>문화재, 역사, 조선, 사적</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "강서구 친환경 생태 특화 도서관 운영 및 생태 환경 독서 프로그램",
+      "objective": "자연 생태와 독서를 결합한 친환경 특화 도서관 서비스를 제공하여 어린이와 주민의 기후 환경 학습 활성화",
+      "content": "생태 도서관 야외 숲속 독서존 가동, 기후변화 대응 어린이 생태 교실, 친환경 북아트 주민 워크숍",
+      "effect": "생태 가치 확산 및 가족 단위 힐링 독서 여가 활성화",
+      "category": "자연·생태형"
+    }
+  },
+  "사하구": {
+    "sido": "부산",
+    "matched_seoul": "구로구",
+    "similarity": 0.4468,
+    "sims_to_seoul": {
+      "광진구": 0.3284,
+      "중구": 0.3333,
+      "성동구": 0.3806,
+      "용산구": 0.282,
+      "종로구": 0.1364,
+      "중랑구": 0.1244,
+      "강북구": 0.1,
+      "도봉구": 0.1914,
+      "성북구": 0.1153,
+      "동대문구": 0.2277,
+      "노원구": 0.1115,
+      "마포구": 0.2994,
+      "양천구": 0.4329,
+      "은평구": 0.2435,
+      "강서구": 0.3135,
+      "금천구": 0.1927,
+      "영등포구": 0.4097,
+      "서대문구": 0.1681,
+      "동작구": 0.3622,
+      "관악구": 0.1698,
+      "서초구": 0.2241,
+      "강남구": 0.2007,
+      "구로구": 0.4468,
+      "송파구": 0.1935,
+      "강동구": 0.1291
+    },
+    "keywords": [
+      "산업·업무형 (산업, 발전, 국가)",
+      "해양문화형 (해안, 해수욕장, 수산물)",
+      "자연·생태형 (철새, 도래지, 하천)",
+      "역사·전통형 (조선총독부, 역사, 계절풍)",
+      "청년문화형 (공연장, 극장, 모임)",
+      "생활문화형 (교육, 평생교육)"
+    ],
+    "matched_keywords": [
+      "산업·업무형 (국가, 단지, 철도)",
+      "역사·전통형 (문화재, 역사, 한성상가)",
+      "청년문화형 (버스, 대학, 예림디자인고등학교)",
+      "생활문화형 (생활, 교육, 평생교육)",
+      "해양문화형 (구일섬)",
+      "자연·생태형 (자연, 전거)"
+    ],
+    "categories": [
+      "산업·업무형",
+      "해양문화형",
+      "자연·생태형",
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "산업·업무형",
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 사하구와 서울 구로구는 <strong>산업·업무형</strong> 문화 자원의 비중이 높고, <strong>산업, 발전, 국가, 단지</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "구로구 G밸리 근로자 야간 인문학 콘서트 및 직장인 맞춤형 모바일 스마트도서관",
+      "objective": "산업단지 직장인의 생활 패턴에 적합한 야간 교양 강좌와 모바일 예약 대출 등 맞춤형 인프라 확충",
+      "content": "G밸리 직장인 대상 퇴근길 인문 독서 특강 및 독서 토론 동아리 지원, 공공장소 내 모바일 예약 도서 무인 대출기 가동",
+      "effect": "산업단지 근로자의 문화 접근성 대폭 보완, 일과 삶의 균형을 돕는 도서 복지 실현",
+      "category": "산업·업무형"
+    }
+  },
+  "연제구": {
+    "sido": "부산",
+    "matched_seoul": "서초구",
+    "similarity": 0.4822,
+    "sims_to_seoul": {
+      "광진구": 0.3865,
+      "중구": 0.3489,
+      "성동구": 0.3201,
+      "용산구": 0.3648,
+      "종로구": 0.3088,
+      "중랑구": 0.1898,
+      "강북구": 0.128,
+      "도봉구": 0.262,
+      "성북구": 0.1045,
+      "동대문구": 0.2102,
+      "노원구": 0.1,
+      "마포구": 0.3744,
+      "양천구": 0.3165,
+      "은평구": 0.3294,
+      "강서구": 0.1705,
+      "금천구": 0.2162,
+      "영등포구": 0.1983,
+      "서대문구": 0.3088,
+      "동작구": 0.1351,
+      "관악구": 0.1927,
+      "서초구": 0.4822,
+      "강남구": 0.429,
+      "구로구": 0.3135,
+      "송파구": 0.2036,
+      "강동구": 0.1412
+    },
+    "keywords": [
+      "역사·전통형 (조선, 역사, 문화)",
+      "청년문화형 (거리, 공연, 가마골소극장)",
+      "자연·생태형 (온천천, 계곡, 자연)",
+      "산업·업무형 (철도, 국가)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 문화, 조선)",
+      "청년문화형 (버스, 예술, 카페)",
+      "생활문화형 (교육, 평생교육, 생활)",
+      "자연·생태형 (태종, 양재시민의숲역, 전거)",
+      "산업·업무형 (국가, 철도)",
+      "해양문화형 (세빛섬)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "청년문화형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "자연·생태형",
+      "산업·업무형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 연제구와 서울 서초구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>조선, 역사, 문화</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "서초구 서리풀 야외 음악 도서관 콘서트 및 공원 속 독서 쉼터 열람실",
+      "objective": "공원의 쾌적함하고 예술 특화 도서관 콘텐츠를 융합하여 구민에게 힐링과 예술 평생 교육 기회 제공",
+      "content": "서리풀공원 숲길 주변 야외 북쉼터 및 북콘서트 정기 개설, 서초 음악 특화도서관 중심 청소년 클래식 인문학 교실",
+      "effect": "특화 도서관의 독서 시너지 극대화, 자연 친화적인 독서 문화 활성화 및 구민 건강 증진",
+      "category": "생활문화형"
+    }
+  },
+  "수영구": {
+    "sido": "부산",
+    "matched_seoul": "구로구",
+    "similarity": 0.4678,
+    "sims_to_seoul": {
+      "광진구": 0.3469,
+      "중구": 0.4448,
+      "성동구": 0.4297,
+      "용산구": 0.3054,
+      "종로구": 0.1937,
+      "중랑구": 0.1095,
+      "강북구": 0.102,
+      "도봉구": 0.1535,
+      "성북구": 0.1377,
+      "동대문구": 0.2132,
+      "노원구": 0.1377,
+      "마포구": 0.204,
+      "양천구": 0.4445,
+      "은평구": 0.2689,
+      "강서구": 0.301,
+      "금천구": 0.2297,
+      "영등포구": 0.3796,
+      "서대문구": 0.2133,
+      "동작구": 0.4646,
+      "관악구": 0.2084,
+      "서초구": 0.2407,
+      "강남구": 0.251,
+      "구로구": 0.4678,
+      "송파구": 0.2348,
+      "강동구": 0.1
+    },
+    "keywords": [
+      "역사·전통형 (역사, 문화재, 조선시대)",
+      "산업·업무형 (철도, 국가, 단지)",
+      "해양문화형 (해수욕장, 광안리해수욕장, 해안)",
+      "청년문화형 (거리, 카페)",
+      "자연·생태형 (공간, 전거, 민락수변공원)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "산업·업무형 (국가, 단지, 철도)",
+      "역사·전통형 (문화재, 역사, 한성상가)",
+      "청년문화형 (버스, 대학, 예림디자인고등학교)",
+      "생활문화형 (생활, 교육, 평생교육)",
+      "해양문화형 (구일섬)",
+      "자연·생태형 (자연, 전거)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "해양문화형",
+      "청년문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "산업·업무형",
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 수영구와 서울 구로구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 문화재, 조선시대, 한성상가</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "구로구 G밸리 근로자 야간 인문학 콘서트 및 직장인 맞춤형 모바일 스마트도서관",
+      "objective": "산업단지 직장인의 생활 패턴에 적합한 야간 교양 강좌와 모바일 예약 대출 등 맞춤형 인프라 확충",
+      "content": "G밸리 직장인 대상 퇴근길 인문 독서 특강 및 독서 토론 동아리 지원, 공공장소 내 모바일 예약 도서 무인 대출기 가동",
+      "effect": "산업단지 근로자의 문화 접근성 대폭 보완, 일과 삶의 균형을 돕는 도서 복지 실현",
+      "category": "산업·업무형"
+    }
+  },
+  "사상구": {
+    "sido": "부산",
+    "matched_seoul": "금천구",
+    "similarity": 0.4879,
+    "sims_to_seoul": {
+      "광진구": 0.3766,
+      "중구": 0.4645,
+      "성동구": 0.4503,
+      "용산구": 0.4726,
+      "종로구": 0.3902,
+      "중랑구": 0.3821,
+      "강북구": 0.3962,
+      "도봉구": 0.3939,
+      "성북구": 0.4342,
+      "동대문구": 0.4422,
+      "노원구": 0.4302,
+      "마포구": 0.1,
+      "양천구": 0.4619,
+      "은평구": 0.4748,
+      "강서구": 0.4835,
+      "금천구": 0.4879,
+      "영등포구": 0.476,
+      "서대문구": 0.4264,
+      "동작구": 0.4552,
+      "관악구": 0.4725,
+      "서초구": 0.2429,
+      "강남구": 0.3775,
+      "구로구": 0.4318,
+      "송파구": 0.4357,
+      "강동구": 0.3982
+    },
+    "keywords": [
+      "역사·전통형 (역사, 고려, 삼국)",
+      "산업·업무형 (철도, 국가, 단지)",
+      "생활문화형 (교육, 평생교육)",
+      "해양문화형 (항구, 바다)",
+      "청년문화형 (버스)",
+      "자연·생태형 (삼락생태공원)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 조선, 역사)",
+      "산업·업무형 (국가, 가산디지털단지역, 철도)",
+      "생활문화형 (교육, 평생)",
+      "청년문화형 (버스, 예술)",
+      "자연·생태형 (전거)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "해양문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 사상구와 서울 금천구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 고려, 삼국, 문화재</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "금천구 IT 융합 청소년 코딩 독서 교실 및 스마트 문해 교육 프로그램",
+      "objective": "디지털 벤처 지구의 특성을 연계하여 어린이·청소년 및 디지털 취약계층의 문해력과 기술 융합 교육 제공",
+      "content": "스마트 기기 활용 코딩 연계 창의 독서 교실, 어르신 대상 키오스크 및 도서관 모바일 앱 활용 스마트 문해 교육",
+      "effect": "청소년 미래 직업 체험 기회 제공, 정보 약자의 디지털 정보 소외 장벽 제거",
+      "category": "산업·업무형"
+    }
+  },
+  "기장군": {
+    "sido": "부산",
+    "matched_seoul": "동작구",
+    "similarity": 0.4,
+    "sims_to_seoul": {
+      "광진구": 0.3,
+      "중구": 0.3039,
+      "성동구": 0.3555,
+      "용산구": 0.199,
+      "종로구": 0.1167,
+      "중랑구": 0.1111,
+      "강북구": 0.1,
+      "도봉구": 0.1469,
+      "성북구": 0.1112,
+      "동대문구": 0.1984,
+      "노원구": 0.1088,
+      "마포구": 0.1924,
+      "양천구": 0.3634,
+      "은평구": 0.1788,
+      "강서구": 0.2222,
+      "금천구": 0.1549,
+      "영등포구": 0.3391,
+      "서대문구": 0.1353,
+      "동작구": 0.4,
+      "관악구": 0.1414,
+      "서초구": 0.1814,
+      "강남구": 0.1489,
+      "구로구": 0.365,
+      "송파구": 0.1972,
+      "강동구": 0.1188
+    },
+    "keywords": [
+      "해양문화형 (해안, 어항, 항구)",
+      "산업·업무형 (철도, 국가, 고리원자력발전소)",
+      "역사·전통형 (역사, 문화, 사찰)",
+      "자연·생태형 (계곡, 산책, 전거)",
+      "생활문화형 (교육)",
+      "청년문화형 (대학, 거리)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "해양문화형",
+      "산업·업무형",
+      "역사·전통형",
+      "자연·생태형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 기장군와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 문화, 사찰, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "거창군": {
+    "sido": "경남",
+    "matched_seoul": "구로구",
+    "similarity": 0.4458,
+    "sims_to_seoul": {
+      "광진구": 0.3387,
+      "중구": 0.4205,
+      "성동구": 0.3573,
+      "용산구": 0.292,
+      "종로구": 0.2627,
+      "중랑구": 0.1117,
+      "강북구": 0.1,
+      "도봉구": 0.143,
+      "성북구": 0.1209,
+      "동대문구": 0.1656,
+      "노원구": 0.1227,
+      "마포구": 0.4416,
+      "양천구": 0.396,
+      "은평구": 0.2522,
+      "강서구": 0.2547,
+      "금천구": 0.2113,
+      "영등포구": 0.2773,
+      "서대문구": 0.238,
+      "동작구": 0.3631,
+      "관악구": 0.1887,
+      "서초구": 0.4173,
+      "강남구": 0.3426,
+      "구로구": 0.4458,
+      "송파구": 0.2097,
+      "강동구": 0.1358
+    },
+    "keywords": [
+      "청년문화형 (공연, 버스, 예술)",
+      "산업·업무형 (단지, 철도, 국가)",
+      "해양문화형 (시장, 수산, 섬유)",
+      "역사·전통형 (문화, 역사, 고려)",
+      "생활문화형 (센터, 교육)",
+      "자연·생태형 (자연, 하천)"
+    ],
+    "matched_keywords": [
+      "산업·업무형 (국가, 단지, 철도)",
+      "역사·전통형 (문화재, 역사, 한성상가)",
+      "청년문화형 (버스, 대학, 예림디자인고등학교)",
+      "생활문화형 (생활, 교육, 평생교육)",
+      "해양문화형 (구일섬)",
+      "자연·생태형 (자연, 전거)"
+    ],
+    "categories": [
+      "청년문화형",
+      "산업·업무형",
+      "해양문화형",
+      "역사·전통형",
+      "생활문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "산업·업무형",
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 거창군와 서울 구로구는 <strong>청년문화형</strong> 문화 자원의 비중이 높고, <strong>공연, 버스, 예술, 대학</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "구로구 G밸리 근로자 야간 인문학 콘서트 및 직장인 맞춤형 모바일 스마트도서관",
+      "objective": "산업단지 직장인의 생활 패턴에 적합한 야간 교양 강좌와 모바일 예약 대출 등 맞춤형 인프라 확충",
+      "content": "G밸리 직장인 대상 퇴근길 인문 독서 특강 및 독서 토론 동아리 지원, 공공장소 내 모바일 예약 도서 무인 대출기 가동",
+      "effect": "산업단지 근로자의 문화 접근성 대폭 보완, 일과 삶의 균형을 돕는 도서 복지 실현",
+      "category": "산업·업무형"
+    }
+  },
+  "거제시": {
+    "sido": "경남",
+    "matched_seoul": "노원구",
+    "similarity": 0.4931,
+    "sims_to_seoul": {
+      "광진구": 0.4182,
+      "중구": 0.4618,
+      "성동구": 0.4429,
+      "용산구": 0.4425,
+      "종로구": 0.4655,
+      "중랑구": 0.4742,
+      "강북구": 0.486,
+      "도봉구": 0.4481,
+      "성북구": 0.4921,
+      "동대문구": 0.4593,
+      "노원구": 0.4931,
+      "마포구": 0.1,
+      "양천구": 0.3545,
+      "은평구": 0.466,
+      "강서구": 0.3729,
+      "금천구": 0.4771,
+      "영등포구": 0.37,
+      "서대문구": 0.4826,
+      "동작구": 0.4617,
+      "관악구": 0.4893,
+      "서초구": 0.3207,
+      "강남구": 0.426,
+      "구로구": 0.3161,
+      "송파구": 0.4888,
+      "강동구": 0.4145
+    },
+    "keywords": [
+      "역사·전통형 (문화재, 조선, 조선소)",
+      "산업·업무형 (국가, 산업, 발전)",
+      "해양문화형 (바다, 해양, 항구)",
+      "청년문화형 (거리, 버스, 공연)",
+      "자연·생태형 (공원, 계곡)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 공릉, 역사)",
+      "산업·업무형 (국가, 철도, 단지)",
+      "생활문화형 (교육, 평생교육, 센터)",
+      "청년문화형 (대학, 버스, 거리)",
+      "자연·생태형 (전거)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "해양문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 거제시와 서울 노원구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>문화재, 조선, 조선소, 공릉</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "노원구 휴먼 라이브러리(사람 도서관) 및 재능 기부 평생 배움터",
+      "objective": "단순 종이책을 넘어 사람이 책이 되어 지식과 경험을 나누는 상호작용 소통 도서관 서비스 안착",
+      "content": "다양한 경력의 주민을 '사람 책'으로 등록, 매월 신청자와의 면대면 지혜 나눔 대화실 운영, 시니어 독서 나눔 동아리",
+      "effect": "지식 나눔 기반의 평생 교육 플랫폼화, 세대 간 지혜 전수 및 열린 공동체 의식 확산",
+      "category": "생활문화형"
+    }
+  },
+  "고성군": {
+    "sido": "경남",
+    "matched_seoul": "동작구",
+    "similarity": 0.4902,
+    "sims_to_seoul": {
+      "광진구": 0.4654,
+      "중구": 0.4491,
+      "성동구": 0.4751,
+      "용산구": 0.4041,
+      "종로구": 0.4344,
+      "중랑구": 0.4537,
+      "강북구": 0.4511,
+      "도봉구": 0.438,
+      "성북구": 0.4401,
+      "동대문구": 0.4548,
+      "노원구": 0.4381,
+      "마포구": 0.1,
+      "양천구": 0.3712,
+      "은평구": 0.4307,
+      "강서구": 0.3044,
+      "금천구": 0.4292,
+      "영등포구": 0.3687,
+      "서대문구": 0.4492,
+      "동작구": 0.4902,
+      "관악구": 0.4376,
+      "서초구": 0.3513,
+      "강남구": 0.4071,
+      "구로구": 0.3128,
+      "송파구": 0.4839,
+      "강동구": 0.406
+    },
+    "keywords": [
+      "역사·전통형 (박물관, 역사, 고려)",
+      "해양문화형 (해안, 바다, 시장)",
+      "자연·생태형 (자연사, 전거, 공원)",
+      "청년문화형 (버스)",
+      "산업·업무형 (국가)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "해양문화형",
+      "자연·생태형",
+      "청년문화형",
+      "산업·업무형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 고성군와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>박물관, 역사, 고려, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "남해군": {
+    "sido": "경남",
+    "matched_seoul": "중구",
+    "similarity": 0.4753,
+    "sims_to_seoul": {
+      "광진구": 0.4169,
+      "중구": 0.4753,
+      "성동구": 0.4195,
+      "용산구": 0.3312,
+      "종로구": 0.4355,
+      "중랑구": 0.3403,
+      "강북구": 0.3472,
+      "도봉구": 0.3014,
+      "성북구": 0.3455,
+      "동대문구": 0.3215,
+      "노원구": 0.3483,
+      "마포구": 0.1,
+      "양천구": 0.2939,
+      "은평구": 0.3524,
+      "강서구": 0.1762,
+      "금천구": 0.3526,
+      "영등포구": 0.21,
+      "서대문구": 0.4116,
+      "동작구": 0.4727,
+      "관악구": 0.3607,
+      "서초구": 0.4072,
+      "강남구": 0.4249,
+      "구로구": 0.2654,
+      "송파구": 0.419,
+      "강동구": 0.2955
+    },
+    "keywords": [
+      "역사·전통형 (역사, 백제, 고려)",
+      "청년문화형 (버스, 공연, 예술)",
+      "해양문화형 (해안, 앞바다, 해양현)",
+      "생활문화형 (생활)",
+      "자연·생태형 (태종, 하천)",
+      "산업·업무형 (국가)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 조선, 궁궐)",
+      "산업·업무형 (국가, 산업, 발전)",
+      "청년문화형 (극장, 공연, 복합)",
+      "해양문화형 (시장)",
+      "자연·생태형 (공원, 하천, 자연)",
+      "생활문화형 (교육, 평생)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "청년문화형",
+      "해양문화형",
+      "생활문화형",
+      "자연·생태형",
+      "산업·업무형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "청년문화형",
+      "해양문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "match_reason": "부산 남해군와 서울 중구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 백제, 고려, 조선</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "중구 퇴근길 스마트도서관 무인 예약대출 및 직장인 야간 인문 독서 동아리",
+      "objective": "직장인 유동인구가 많은 도심 권역에 시공간 제약 없는 무인 도서 예약 서비스 및 야간 문화강좌 제공",
+      "content": "지하철역 거점 24시간 U-도서관 스마트기기 확충, 퇴근길 직장인 대상 테마별 북큐레이션 및 소규모 독서토론 모임 개설",
+      "effect": "도심 직장인의 도서관 이용 장벽 제거, 바쁜 일상 속 비대면 독서 접근성 제고",
+      "category": "산업·업무형"
+    }
+  },
+  "김해시": {
+    "sido": "경남",
+    "matched_seoul": "동작구",
+    "similarity": 0.4882,
+    "sims_to_seoul": {
+      "광진구": 0.4319,
+      "중구": 0.4118,
+      "성동구": 0.4452,
+      "용산구": 0.3176,
+      "종로구": 0.3594,
+      "중랑구": 0.348,
+      "강북구": 0.3454,
+      "도봉구": 0.3355,
+      "성북구": 0.3365,
+      "동대문구": 0.3735,
+      "노원구": 0.3329,
+      "마포구": 0.1,
+      "양천구": 0.3611,
+      "은평구": 0.3406,
+      "강서구": 0.2262,
+      "금천구": 0.3443,
+      "영등포구": 0.3234,
+      "서대문구": 0.3596,
+      "동작구": 0.4882,
+      "관악구": 0.3427,
+      "서초구": 0.3397,
+      "강남구": 0.3453,
+      "구로구": 0.3056,
+      "송파구": 0.4172,
+      "강동구": 0.3481
+    },
+    "keywords": [
+      "역사·전통형 (역사, 문화, 박물관)",
+      "해양문화형 (시장, 바다, 해양)",
+      "청년문화형 (버스, 복합)",
+      "생활문화형 (센터, 평생, 학습)",
+      "자연·생태형 (강변축제, 자연, 계곡)",
+      "산업·업무형 (녹산면)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "해양문화형",
+      "청년문화형",
+      "생활문화형",
+      "자연·생태형",
+      "산업·업무형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 김해시와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 문화, 박물관, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "사천시": {
+    "sido": "경남",
+    "matched_seoul": "동작구",
+    "similarity": 0.4842,
+    "sims_to_seoul": {
+      "광진구": 0.3945,
+      "중구": 0.4162,
+      "성동구": 0.4243,
+      "용산구": 0.3191,
+      "종로구": 0.35,
+      "중랑구": 0.3436,
+      "강북구": 0.35,
+      "도봉구": 0.3236,
+      "성북구": 0.3509,
+      "동대문구": 0.3556,
+      "노원구": 0.3516,
+      "마포구": 0.1,
+      "양천구": 0.3352,
+      "은평구": 0.3364,
+      "강서구": 0.2552,
+      "금천구": 0.3424,
+      "영등포구": 0.3193,
+      "서대문구": 0.3555,
+      "동작구": 0.4842,
+      "관악구": 0.3503,
+      "서초구": 0.2927,
+      "강남구": 0.3265,
+      "구로구": 0.3034,
+      "송파구": 0.4008,
+      "강동구": 0.3057
+    },
+    "keywords": [
+      "역사·전통형 (조선, 임진왜란, 고려)",
+      "해양문화형 (부두, 욕장, 해안)",
+      "청년문화형 (공연, 복합, 버스)",
+      "산업·업무형 (공항, 철도, 국가)",
+      "자연·생태형 (자연, 태종)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "해양문화형",
+      "청년문화형",
+      "산업·업무형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 사천시와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>조선, 임진왜란, 고려, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "밀양시": {
+    "sido": "경남",
+    "matched_seoul": "중구",
+    "similarity": 0.4934,
+    "sims_to_seoul": {
+      "광진구": 0.4512,
+      "중구": 0.4934,
+      "성동구": 0.4586,
+      "용산구": 0.4227,
+      "종로구": 0.4573,
+      "중랑구": 0.403,
+      "강북구": 0.3985,
+      "도봉구": 0.3899,
+      "성북구": 0.3971,
+      "동대문구": 0.3967,
+      "노원구": 0.3978,
+      "마포구": 0.1,
+      "양천구": 0.3491,
+      "은평구": 0.4373,
+      "강서구": 0.2748,
+      "금천구": 0.417,
+      "영등포구": 0.3019,
+      "서대문구": 0.4625,
+      "동작구": 0.4525,
+      "관악구": 0.4226,
+      "서초구": 0.3897,
+      "강남구": 0.4554,
+      "구로구": 0.3113,
+      "송파구": 0.451,
+      "강동구": 0.3324
+    },
+    "keywords": [
+      "역사·전통형 (문화재, 조선, 역사)",
+      "청년문화형 (공연, 버스, 복합)",
+      "해양문화형 (수산현, 시장, 수산리)",
+      "산업·업무형 (철도, 국가, 산업)",
+      "자연·생태형 (태종, 계곡, 공원)",
+      "생활문화형 (교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 조선, 궁궐)",
+      "산업·업무형 (국가, 산업, 발전)",
+      "청년문화형 (극장, 공연, 복합)",
+      "해양문화형 (시장)",
+      "자연·생태형 (공원, 하천, 자연)",
+      "생활문화형 (교육, 평생)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "청년문화형",
+      "해양문화형",
+      "산업·업무형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "청년문화형",
+      "해양문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "match_reason": "부산 밀양시와 서울 중구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>문화재, 조선, 역사, 궁궐</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "중구 퇴근길 스마트도서관 무인 예약대출 및 직장인 야간 인문 독서 동아리",
+      "objective": "직장인 유동인구가 많은 도심 권역에 시공간 제약 없는 무인 도서 예약 서비스 및 야간 문화강좌 제공",
+      "content": "지하철역 거점 24시간 U-도서관 스마트기기 확충, 퇴근길 직장인 대상 테마별 북큐레이션 및 소규모 독서토론 모임 개설",
+      "effect": "도심 직장인의 도서관 이용 장벽 제거, 바쁜 일상 속 비대면 독서 접근성 제고",
+      "category": "산업·업무형"
+    }
+  },
+  "산청군": {
+    "sido": "경남",
+    "matched_seoul": "강서구",
+    "similarity": 0.4925,
+    "sims_to_seoul": {
+      "광진구": 0.3432,
+      "중구": 0.4046,
+      "성동구": 0.4024,
+      "용산구": 0.492,
+      "종로구": 0.3446,
+      "중랑구": 0.3811,
+      "강북구": 0.3757,
+      "도봉구": 0.4201,
+      "성북구": 0.404,
+      "동대문구": 0.428,
+      "노원구": 0.401,
+      "마포구": 0.1,
+      "양천구": 0.4121,
+      "은평구": 0.4811,
+      "강서구": 0.4925,
+      "금천구": 0.4536,
+      "영등포구": 0.4668,
+      "서대문구": 0.4088,
+      "동작구": 0.3277,
+      "관악구": 0.4457,
+      "서초구": 0.1835,
+      "강남구": 0.35,
+      "구로구": 0.3901,
+      "송파구": 0.376,
+      "강동구": 0.322
+    },
+    "keywords": [
+      "역사·전통형 (고려, 역사, 문화재)",
+      "산업·업무형 (기업, 정보, 단지)",
+      "자연·생태형 (계곡, 자연, 전거)",
+      "생활문화형 (책임자)",
+      "청년문화형 (버스)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 역사, 사적)",
+      "산업·업무형 (김포공항역, 국가, 국제공항)",
+      "생활문화형 (교육, 평생)",
+      "청년문화형 (대학, 버스)",
+      "자연·생태형 (전거)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "자연·생태형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 산청군와 서울 강서구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>고려, 역사, 문화재, 사적</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "강서구 친환경 생태 특화 도서관 운영 및 생태 환경 독서 프로그램",
+      "objective": "자연 생태와 독서를 결합한 친환경 특화 도서관 서비스를 제공하여 어린이와 주민의 기후 환경 학습 활성화",
+      "content": "생태 도서관 야외 숲속 독서존 가동, 기후변화 대응 어린이 생태 교실, 친환경 북아트 주민 워크숍",
+      "effect": "생태 가치 확산 및 가족 단위 힐링 독서 여가 활성화",
+      "category": "자연·생태형"
+    }
+  },
+  "양산시": {
+    "sido": "경남",
+    "matched_seoul": "양천구",
+    "similarity": 0.4946,
+    "sims_to_seoul": {
+      "광진구": 0.3347,
+      "중구": 0.3888,
+      "성동구": 0.406,
+      "용산구": 0.3325,
+      "종로구": 0.1904,
+      "중랑구": 0.1138,
+      "강북구": 0.1,
+      "도봉구": 0.1802,
+      "성북구": 0.1372,
+      "동대문구": 0.252,
+      "노원구": 0.1279,
+      "마포구": 0.2057,
+      "양천구": 0.4946,
+      "은평구": 0.3003,
+      "강서구": 0.3483,
+      "금천구": 0.2721,
+      "영등포구": 0.4258,
+      "서대문구": 0.2137,
+      "동작구": 0.3882,
+      "관악구": 0.226,
+      "서초구": 0.2479,
+      "강남구": 0.2586,
+      "구로구": 0.4845,
+      "송파구": 0.2365,
+      "강동구": 0.2055
+    },
+    "keywords": [
+      "역사·전통형 (고려, 조선, 사찰)",
+      "산업·업무형 (철도, 산업, 단지)",
+      "생활문화형 (생활, 교육)",
+      "해양문화형 (시장, 해안)",
+      "청년문화형 (버스, 복합)",
+      "자연·생태형 (태종, 계곡, 강변로)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (구릉지, 역사, 문화재)",
+      "산업·업무형 (단지, 국가, 철도)",
+      "생활문화형 (센터, 교육, 학습)",
+      "자연·생태형 (습지, 배후저습지, 배후습지)",
+      "청년문화형 (버스)",
+      "해양문화형 (시장, 연안)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "해양문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "자연·생태형",
+      "청년문화형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 양산시와 서울 양천구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>고려, 조선, 사찰, 구릉지</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "양천구 서서울호수공원 소리 도서관 및 친환경 에코 독서 교육",
+      "objective": "친환경 생태 공원 내 수변 공간에서 음악·소리 도서관 서비스를 통해 친환경 심리 정화 교육 제공",
+      "content": "공원 내 오디오북 리스닝 숲속 부스 운영, 어린이 생태 환경 독서 골든벨, 자원 순환 북아트 주민 프로그램",
+      "effect": "수변 녹지 활용 독서 공간의 다각화, 구민의 생태 감수성 및 환경 보호 인식 고취",
+      "category": "자연·생태형"
+    }
+  },
+  "의령군": {
+    "sido": "경남",
+    "matched_seoul": "송파구",
+    "similarity": 0.4959,
+    "sims_to_seoul": {
+      "광진구": 0.4185,
+      "중구": 0.4232,
+      "성동구": 0.4327,
+      "용산구": 0.4137,
+      "종로구": 0.4558,
+      "중랑구": 0.4787,
+      "강북구": 0.4904,
+      "도봉구": 0.45,
+      "성북구": 0.4896,
+      "동대문구": 0.4709,
+      "노원구": 0.4872,
+      "마포구": 0.1,
+      "양천구": 0.3579,
+      "은평구": 0.4469,
+      "강서구": 0.3531,
+      "금천구": 0.4729,
+      "영등포구": 0.3715,
+      "서대문구": 0.4662,
+      "동작구": 0.4577,
+      "관악구": 0.479,
+      "서초구": 0.3292,
+      "강남구": 0.4092,
+      "구로구": 0.3005,
+      "송파구": 0.4959,
+      "강동구": 0.4673
+    },
+    "keywords": [
+      "역사·전통형 (역사, 유적, 고려)",
+      "생활문화형 (생활, 교육)",
+      "해양문화형 (바다, 해양)",
+      "산업·업무형 (국가)",
+      "자연·생태형 (전거)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 고분, 백제)",
+      "자연·생태형 (석촌호수, 호수, 공원)",
+      "생활문화형 (센터, 교육, 평생교육)",
+      "산업·업무형 (국가, 단지, 철도)",
+      "청년문화형 (공연장)",
+      "해양문화형 (시장, 잠실섬)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "생활문화형",
+      "해양문화형",
+      "산업·업무형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "생활문화형",
+      "산업·업무형",
+      "청년문화형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 의령군와 서울 송파구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 유적, 고려, 고분</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "송파구 석촌호수 수변 독서 쉼터 및 생활 예술 시 낭송 동아리 강좌",
+      "objective": "수변 공원에 휴식과 책이 어우러진 도서 쉼터를 조성하고 주민 시 낭송 등 서정적 생활문화 장려",
+      "content": "석촌호수 내 수변 북카페형 독서 쉼터 상설 북큐레이션 제공, 구민 소규모 서정문학 낭독회 및 시화 가꾸기 문화 교실",
+      "effect": "문화 예술 융합 독서 공간의 랜드마크화, 주민 친밀도가 높은 감성 평생교육 정착",
+      "category": "생활문화형"
+    }
+  },
+  "창녕군": {
+    "sido": "경남",
+    "matched_seoul": "도봉구",
+    "similarity": 0.4975,
+    "sims_to_seoul": {
+      "광진구": 0.4572,
+      "중구": 0.3767,
+      "성동구": 0.4402,
+      "용산구": 0.427,
+      "종로구": 0.4147,
+      "중랑구": 0.4893,
+      "강북구": 0.4677,
+      "도봉구": 0.4975,
+      "성북구": 0.4403,
+      "동대문구": 0.4836,
+      "노원구": 0.4352,
+      "마포구": 0.1,
+      "양천구": 0.3458,
+      "은평구": 0.4526,
+      "강서구": 0.3159,
+      "금천구": 0.427,
+      "영등포구": 0.3798,
+      "서대문구": 0.451,
+      "동작구": 0.3762,
+      "관악구": 0.4356,
+      "서초구": 0.3257,
+      "강남구": 0.3968,
+      "구로구": 0.2702,
+      "송파구": 0.464,
+      "강동구": 0.4181
+    },
+    "keywords": [
+      "역사·전통형 (역사, 조선, 고려)",
+      "자연·생태형 (온천, 습지, 생태)",
+      "산업·업무형 (국가, 발전)",
+      "청년문화형 (버스)",
+      "생활문화형 (강좌, 교육)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 조선, 역사)",
+      "자연·생태형 (하천, 계곡, 자연환경)",
+      "산업·업무형 (국가, 철도)",
+      "생활문화형 (교육)",
+      "청년문화형 (세그루패션디자인고등학교)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "청년문화형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "match_reason": "부산 창녕군와 서울 도봉구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 조선, 고려, 문화재</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "도봉구 공공도서관 평화문화진지 연계 예술 인문학 특강 및 북아트 교실",
+      "objective": "도서관과 생활문화 재생 거점을 융합하여 주민 참여형 예술·인문학 평생학습 교실 활성화",
+      "content": "평화문화진지 내 도서 서재 활용 독서 토론회, 예술가와 함께하는 그림책 북아트 주민 창작 클래스, 역사 인문 교실",
+      "effect": "지역 문화 공간 재생 시너지 극대화, 구민의 문화 예술 인문 소양 증진",
+      "category": "생활문화형"
+    }
+  },
+  "진주시": {
+    "sido": "경남",
+    "matched_seoul": "중구",
+    "similarity": 0.4964,
+    "sims_to_seoul": {
+      "광진구": 0.3936,
+      "중구": 0.4964,
+      "성동구": 0.4486,
+      "용산구": 0.4605,
+      "종로구": 0.4265,
+      "중랑구": 0.374,
+      "강북구": 0.3857,
+      "도봉구": 0.3727,
+      "성북구": 0.4166,
+      "동대문구": 0.4076,
+      "노원구": 0.4157,
+      "마포구": 0.1,
+      "양천구": 0.4172,
+      "은평구": 0.4641,
+      "강서구": 0.4086,
+      "금천구": 0.466,
+      "영등포구": 0.3951,
+      "서대문구": 0.4461,
+      "동작구": 0.4556,
+      "관악구": 0.4577,
+      "서초구": 0.3046,
+      "강남구": 0.4209,
+      "구로구": 0.3942,
+      "송파구": 0.436,
+      "강동구": 0.3569
+    },
+    "keywords": [
+      "역사·전통형 (역사, 문화재, 문화)",
+      "산업·업무형 (단지, 산업, 발전)",
+      "청년문화형 (예술, 복합, 대학)",
+      "해양문화형 (시장)",
+      "생활문화형 (교육, 생활)",
+      "자연·생태형 (호수, 공간)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 조선, 궁궐)",
+      "산업·업무형 (국가, 산업, 발전)",
+      "청년문화형 (극장, 공연, 복합)",
+      "해양문화형 (시장)",
+      "자연·생태형 (공원, 하천, 자연)",
+      "생활문화형 (교육, 평생)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "청년문화형",
+      "해양문화형",
+      "생활문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "청년문화형",
+      "해양문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "match_reason": "부산 진주시와 서울 중구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 문화재, 문화, 조선</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "중구 퇴근길 스마트도서관 무인 예약대출 및 직장인 야간 인문 독서 동아리",
+      "objective": "직장인 유동인구가 많은 도심 권역에 시공간 제약 없는 무인 도서 예약 서비스 및 야간 문화강좌 제공",
+      "content": "지하철역 거점 24시간 U-도서관 스마트기기 확충, 퇴근길 직장인 대상 테마별 북큐레이션 및 소규모 독서토론 모임 개설",
+      "effect": "도심 직장인의 도서관 이용 장벽 제거, 바쁜 일상 속 비대면 독서 접근성 제고",
+      "category": "산업·업무형"
+    }
+  },
+  "창원시": {
+    "sido": "경남",
+    "matched_seoul": "동작구",
+    "similarity": 0.4626,
+    "sims_to_seoul": {
+      "광진구": 0.346,
+      "중구": 0.3508,
+      "성동구": 0.3971,
+      "용산구": 0.2384,
+      "종로구": 0.2108,
+      "중랑구": 0.2084,
+      "강북구": 0.2074,
+      "도봉구": 0.2174,
+      "성북구": 0.2148,
+      "동대문구": 0.2751,
+      "노원구": 0.2119,
+      "마포구": 0.1,
+      "양천구": 0.361,
+      "은평구": 0.2408,
+      "강서구": 0.2237,
+      "금천구": 0.2395,
+      "영등포구": 0.3371,
+      "서대문구": 0.2236,
+      "동작구": 0.4626,
+      "관악구": 0.2317,
+      "서초구": 0.2145,
+      "강남구": 0.2119,
+      "구로구": 0.3335,
+      "송파구": 0.298,
+      "강동구": 0.2187
+    },
+    "keywords": [
+      "해양문화형 (시장, 바다, 연안)",
+      "역사·전통형 (역사, 구릉, 고분군)",
+      "산업·업무형 (국가, 산업, 단지)",
+      "생활문화형 (센터, 평생, 학습)",
+      "자연·생태형 (자연, 용추폭포, 전거)",
+      "청년문화형 (극장, 공방)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "해양문화형",
+      "역사·전통형",
+      "산업·업무형",
+      "생활문화형",
+      "자연·생태형",
+      "청년문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 창원시와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 구릉, 고분군, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "통영시": {
+    "sido": "경남",
+    "matched_seoul": "동작구",
+    "similarity": 0.4736,
+    "sims_to_seoul": {
+      "광진구": 0.4026,
+      "중구": 0.3877,
+      "성동구": 0.4282,
+      "용산구": 0.2824,
+      "종로구": 0.2903,
+      "중랑구": 0.2924,
+      "강북구": 0.2857,
+      "도봉구": 0.2908,
+      "성북구": 0.2784,
+      "동대문구": 0.326,
+      "노원구": 0.2769,
+      "마포구": 0.1,
+      "양천구": 0.344,
+      "은평구": 0.2941,
+      "강서구": 0.2102,
+      "금천구": 0.283,
+      "영등포구": 0.3194,
+      "서대문구": 0.3006,
+      "동작구": 0.4736,
+      "관악구": 0.2856,
+      "서초구": 0.2818,
+      "강남구": 0.285,
+      "구로구": 0.3054,
+      "송파구": 0.3595,
+      "강동구": 0.2596
+    },
+    "keywords": [
+      "역사·전통형 (문화, 역사, 조선)",
+      "해양문화형 (바다, 해안, 해양)",
+      "자연·생태형 (자연, 공원, 공간)",
+      "청년문화형 (예술, 공연, 복합)",
+      "산업·업무형 (발전, 국가, 산업)",
+      "생활문화형 (센터, 정책)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "해양문화형",
+      "자연·생태형",
+      "청년문화형",
+      "산업·업무형",
+      "생활문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 통영시와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>문화, 역사, 조선, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "함안군": {
+    "sido": "경남",
+    "matched_seoul": "서초구",
+    "similarity": 0.4905,
+    "sims_to_seoul": {
+      "광진구": 0.2915,
+      "중구": 0.3934,
+      "성동구": 0.2499,
+      "용산구": 0.3328,
+      "종로구": 0.405,
+      "중랑구": 0.2097,
+      "강북구": 0.2031,
+      "도봉구": 0.2033,
+      "성북구": 0.2119,
+      "동대문구": 0.1734,
+      "노원구": 0.2161,
+      "마포구": 0.3676,
+      "양천구": 0.2364,
+      "은평구": 0.3155,
+      "강서구": 0.1875,
+      "금천구": 0.2814,
+      "영등포구": 0.1,
+      "서대문구": 0.3582,
+      "동작구": 0.1946,
+      "관악구": 0.2712,
+      "서초구": 0.4905,
+      "강남구": 0.4654,
+      "구로구": 0.272,
+      "송파구": 0.2486,
+      "강동구": 0.1983
+    },
+    "keywords": [
+      "역사·전통형 (무릉, 역사, 무릉리)",
+      "청년문화형 (버스, 거리)",
+      "산업·업무형 (국가, 철도)",
+      "생활문화형 (교육)",
+      "자연·생태형 (전거)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 문화, 조선)",
+      "청년문화형 (버스, 예술, 카페)",
+      "생활문화형 (교육, 평생교육, 생활)",
+      "자연·생태형 (태종, 양재시민의숲역, 전거)",
+      "산업·업무형 (국가, 철도)",
+      "해양문화형 (세빛섬)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "청년문화형",
+      "산업·업무형",
+      "생활문화형",
+      "자연·생태형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "청년문화형",
+      "생활문화형",
+      "자연·생태형",
+      "산업·업무형",
+      "해양문화형"
+    ],
+    "match_reason": "부산 함안군와 서울 서초구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>무릉, 역사, 무릉리, 문화</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "서초구 서리풀 야외 음악 도서관 콘서트 및 공원 속 독서 쉼터 열람실",
+      "objective": "공원의 쾌적함하고 예술 특화 도서관 콘텐츠를 융합하여 구민에게 힐링과 예술 평생 교육 기회 제공",
+      "content": "서리풀공원 숲길 주변 야외 북쉼터 및 북콘서트 정기 개설, 서초 음악 특화도서관 중심 청소년 클래식 인문학 교실",
+      "effect": "특화 도서관의 독서 시너지 극대화, 자연 친화적인 독서 문화 활성화 및 구민 건강 증진",
+      "category": "생활문화형"
+    }
+  },
+  "하동군": {
+    "sido": "경남",
+    "matched_seoul": "동작구",
+    "similarity": 0.4641,
+    "sims_to_seoul": {
+      "광진구": 0.4211,
+      "중구": 0.3644,
+      "성동구": 0.4409,
+      "용산구": 0.2852,
+      "종로구": 0.2689,
+      "중랑구": 0.3036,
+      "강북구": 0.2871,
+      "도봉구": 0.316,
+      "성북구": 0.2712,
+      "동대문구": 0.3486,
+      "노원구": 0.267,
+      "마포구": 0.1,
+      "양천구": 0.3617,
+      "은평구": 0.2971,
+      "강서구": 0.2151,
+      "금천구": 0.2766,
+      "영등포구": 0.352,
+      "서대문구": 0.2901,
+      "동작구": 0.4641,
+      "관악구": 0.2769,
+      "서초구": 0.2712,
+      "강남구": 0.2682,
+      "구로구": 0.3096,
+      "송파구": 0.3594,
+      "강동구": 0.2721
+    },
+    "keywords": [
+      "역사·전통형 (역사, 백제, 고려)",
+      "해양문화형 (섬진강, 바다, 해안)",
+      "자연·생태형 (하천, 자연, 정원)",
+      "산업·업무형 (국가, 통신)",
+      "생활문화형 (교육, 생활)",
+      "청년문화형 (버스, 거리)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화유산, 역사, 역사관)",
+      "해양문화형 (시장, 수산, 노량진수산시장)",
+      "산업·업무형 (국가, 철도, 정보산업고등학교)",
+      "생활문화형 (교육, 센터, 평생교육)",
+      "청년문화형 (대학)",
+      "자연·생태형 (공간, 전거, 공원)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "해양문화형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "해양문화형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형",
+      "자연·생태형"
+    ],
+    "match_reason": "부산 하동군와 서울 동작구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>역사, 백제, 고려, 문화유산</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "동작구 노량진 수험가 청년 마음 치유 힐링 독서 쉼터 및 청년 진로 상담 독서 멘토링",
+      "objective": "수험생과 취업 준비생 밀집 구역에 마음 치유 도서관 서비스를 제공해 심리적 안정 및 삶의 에너지 제공",
+      "content": "동작도서관 청년 힐링 상담 북테라피(치유 도서 전시), 청년 주도 진로 탐색 북살롱 및 독서 동아리 공간 지원",
+      "effect": "청년들의 심리 복지 체감도 극대화, 미래 진로 선택을 돕는 정서적 돌봄 체계 완비",
+      "category": "청년문화형"
+    }
+  },
+  "함양군": {
+    "sido": "경남",
+    "matched_seoul": "용산구",
+    "similarity": 0.4965,
+    "sims_to_seoul": {
+      "광진구": 0.461,
+      "중구": 0.4573,
+      "성동구": 0.4702,
+      "용산구": 0.4965,
+      "종로구": 0.4137,
+      "중랑구": 0.4018,
+      "강북구": 0.3732,
+      "도봉구": 0.4435,
+      "성북구": 0.3719,
+      "동대문구": 0.4425,
+      "노원구": 0.3653,
+      "마포구": 0.1,
+      "양천구": 0.4238,
+      "은평구": 0.4959,
+      "강서구": 0.3649,
+      "금천구": 0.4418,
+      "영등포구": 0.4046,
+      "서대문구": 0.4564,
+      "동작구": 0.362,
+      "관악구": 0.4285,
+      "서초구": 0.3462,
+      "강남구": 0.446,
+      "구로구": 0.3661,
+      "송파구": 0.4243,
+      "강동구": 0.3473
+    },
+    "keywords": [
+      "역사·전통형 (고려, 조선, 조선총독부)",
+      "산업·업무형 (산업, 국가, 철도)",
+      "자연·생태형 (계곡, 용추폭포과, 전거)",
+      "청년문화형 (버스, 거리)",
+      "생활문화형 (화강, 교육)",
+      "해양문화형 (바다)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (역사, 한성부, 조선총독부)",
+      "산업·업무형 (국가, 철도, 기업)",
+      "청년문화형 (공연, 대학, 극장)",
+      "자연·생태형 (자연, 공원, 생태)",
+      "생활문화형 (교육, 평생교육)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "자연·생태형",
+      "청년문화형",
+      "생활문화형",
+      "해양문화형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "산업·업무형",
+      "청년문화형",
+      "자연·생태형",
+      "생활문화형"
+    ],
+    "match_reason": "부산 함양군와 서울 용산구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>고려, 조선, 조선총독부, 역사</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "용산구 향토 역사 아카이브 및 공공도서관 역사 인문학 교실",
+      "objective": "공공도서관을 거점으로 지역 역사문화 서적을 정리하고 구민 역사 인문학 아카데미를 활성화",
+      "content": "용산 향토사 아카이브 구축, 도서관 특별 역사문화 강좌 개설, 역사 도서 낭독회 운영",
+      "effect": "구민의 애향심과 인문적 자긍심 고취, 향토 사료의 체적 보존",
+      "category": "역사·전통형"
+    }
+  },
+  "합천군": {
+    "sido": "경남",
+    "matched_seoul": "강북구",
+    "similarity": 0.5,
+    "sims_to_seoul": {
+      "광진구": 0.4166,
+      "중구": 0.4042,
+      "성동구": 0.4188,
+      "용산구": 0.4271,
+      "종로구": 0.4562,
+      "중랑구": 0.4959,
+      "강북구": 0.5,
+      "도봉구": 0.4745,
+      "성북구": 0.4922,
+      "동대문구": 0.4775,
+      "노원구": 0.4899,
+      "마포구": 0.1,
+      "양천구": 0.3368,
+      "은평구": 0.4587,
+      "강서구": 0.3521,
+      "금천구": 0.4708,
+      "영등포구": 0.3638,
+      "서대문구": 0.4747,
+      "동작구": 0.4112,
+      "관악구": 0.4805,
+      "서초구": 0.3237,
+      "강남구": 0.4138,
+      "구로구": 0.2774,
+      "송파구": 0.4881,
+      "강동구": 0.4572
+    },
+    "keywords": [
+      "역사·전통형 (문화재, 역사, 유산)",
+      "자연·생태형 (하천, 폭포, 태종)",
+      "생활문화형 (쌍책면, 생활, 화강)",
+      "산업·업무형 (국가)"
+    ],
+    "matched_keywords": [
+      "역사·전통형 (문화재, 역사, 덕릉)",
+      "자연·생태형 (녹지, 꿈의숲, 생태)",
+      "산업·업무형 (국가, 철도)",
+      "생활문화형 (교육)",
+      "청년문화형 (대학)"
+    ],
+    "categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "생활문화형",
+      "산업·업무형"
+    ],
+    "matched_categories": [
+      "역사·전통형",
+      "자연·생태형",
+      "산업·업무형",
+      "생활문화형",
+      "청년문화형"
+    ],
+    "match_reason": "부산 합천군와 서울 강북구는 <strong>역사·전통형</strong> 문화 자원의 비중이 높고, <strong>문화재, 역사, 유산, 덕릉</strong> 등의 콘텐츠가 공통적으로 나타나 문화적 특성이 유사한 지역으로 분석되었습니다.",
+    "policy": {
+      "name": "강북구 북한산 숲속 어린이 생태 도서관 및 친환경 독서 캠프",
+      "objective": "자연 녹지 공간 속 어린이 도서관 인프라를 조성하여 자연 교감 및 어린이 생태 교육 시너지 창출",
+      "content": "솔밭공원 내 친환경 어린이 도서관 상설 운영, 환경 주제 독서 동아리 및 자연 관찰 연계 숲속 어린이 북토크 개최",
+      "effect": "어린이의 생태 정서 함양, 친환경 여가 선용 공간 확충으로 도서관 이용층 다양화",
+      "category": "자연·생태형"
+    }
+  }
+};
+
+let SEL = null, STEP = 1, RC = null, BC = null;
+const state = {
+  similarRegions: [],
+  benchmarkRegion: null,
+  selectedPolicy: null
+};
+
+function getSimilarRegions(d) {
+  function dist(a,b){
+    const n=(v,mn,mx)=>(v-mn)/(mx-mn+.001), lp=v=>Math.log10(v+1), df=(x,y)=>Math.pow(x-y,2);
+    return Math.sqrt(df(n(lp(a.인구_2025),4,7),n(lp(b.인구_2025),4,7))*2+df(n(a.고령화율,10,50),n(b.고령화율,10,50))*2+df(n(a.도서관수,1,20),n(b.도서관수,1,20))+df(n(a.CMRI,20,80),n(b.CMRI,20,80))+df(n(a.S_pop_소멸,20,80),n(b.S_pop_소멸,20,80)));
+  }
+  return DISTRICTS.filter(x=>!(x.시도===d.시도&&x.시군구===d.시군구))
+    .map(r=>Object.assign({},r,{dist:dist(d,r)}))
+    .sort((a,b)=>a.dist-b.dist);
+}
+
+function getBenchmarkRegion(d) {
+  let bms=DISTRICTS.filter(r=>!(r.시도===d.시도&&r.시군구===d.시군구)&&r.군집==='군집 3'&&Math.abs(r.S_pop_소멸-d.S_pop_소멸)<25).sort((a,b)=>b.S_infra_인프라-a.S_infra_인프라).slice(0,3);
+  if(bms.length===0)bms=DISTRICTS.filter(r=>!(r.시도===d.시도&&r.시군구===d.시군구)&&r.S_infra_인프라>d.S_infra_인프라).sort((a,b)=>b.S_infra_인프라-a.S_infra_인프라).slice(0,2);
+  if(bms.length===0)bms=DISTRICTS.filter(r=>!(r.시도===d.시도&&r.시군구===d.시군구)).sort((a,b)=>b.S_infra_인프라-a.S_infra_인프라).slice(0,2);
+  return bms[0] || null;
+}
+
+// ─── SELECTORS ────────────────────────────────
+const guMap = {
+  "부산":["강서구","금정구","기장군","남구","동구","동래구","부산진구","북구","사상구","사하구","서구","수영구","연제구","영도구","중구","해운대구"],
+  "경남":["거제시","거창군","고성군","김해시","남해군","밀양시","사천시","산청군","양산시","의령군","진주시","창녕군","창원시","통영시","하동군","함안군","함양군","합천군"]
+};
+
+function updateGu() {
+  const sidoEl = document.getElementById('sel-sido');
+  const guEl   = document.getElementById('sel-gu');
+  const s = sidoEl.value;
+  // 항상 초기화
+  guEl.innerHTML = '';
+  if (!s || !guMap[s]) {
+    guEl.innerHTML = '<option value="">← 먼저 시도를 선택하세요</option>';
+    guEl.disabled = true;
+    return;
+  }
+  guEl.disabled = false;
+  guEl.innerHTML = '<option value="">시군구 선택</option>';
+  guMap[s].forEach(v => {
+    const opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    guEl.appendChild(opt);
+  });
+}
+
+// 시도 선택 → 시군구 목록 표시 (onclick으로 직접 호출, 이벤트 리스너 불필요)
+let _currentSido = '';
+function showGu(sido) {
+  _currentSido = sido;
+
+  // 버튼 스타일 토글
+  document.getElementById('btn-busan').style.cssText  = sido === '부산'
+    ? 'flex:1;padding:14px;border-radius:12px;border:2px solid var(--purple);background:rgba(99,102,241,.15);color:#c7d2fe;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;'
+    : 'flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--muted);font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;';
+  document.getElementById('btn-gyenam').style.cssText = sido === '경남'
+    ? 'flex:1;padding:14px;border-radius:12px;border:2px solid var(--purple);background:rgba(99,102,241,.15);color:#c7d2fe;font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;'
+    : 'flex:1;padding:14px;border-radius:12px;border:2px solid var(--border);background:var(--bg);color:var(--muted);font-size:1rem;font-weight:700;font-family:inherit;cursor:pointer;';
+
+  // 시군구 셀렉트 채우기
+  const guEl = document.getElementById('sel-gu');
+  guEl.innerHTML = '<option value="">' + sido.replace('부산','부산') + ' 시군구 선택</option>';
+  (guMap[sido] || []).forEach(function(v) {
+    var opt = document.createElement('option');
+    opt.value = v;
+    opt.textContent = v;
+    guEl.appendChild(opt);
+  });
+
+  // 시군구 영역 표시
+  document.getElementById('gu-area').style.display = 'block';
+}
+
+// runAnalysis에서 sido 가져오기
+function getSido() { return _currentSido; }
+
+
+function runAnalysis() {
+  const s = getSido();
+  const g = document.getElementById('sel-gu').value;
+  if (!s) { alert('시도를 선택해주세요.'); return; }
+  if (!g) { alert('시군구를 선택해주세요.'); return; }
+  SEL = DISTRICTS.find(d => d.시도 === s && d.시군구 === g);
+  if (!SEL) { alert('해당 지역 데이터가 없습니다.'); return; }
+
+  // 실시간 가중평균 종합불편 계산 및 덮어쓰기
+  SEL.종합불편 = +(0.25 * SEL.노후화 + 0.10 * SEL.사서부족 + 0.25 * SEL.도서관부족 + 0.40 * SEL.접근성).toFixed(1);
+
+  // 1회 계산 후 전역 상태에 저장
+  state.similarRegions = getSimilarRegions(SEL).slice(0, 6);
+  state.benchmarkRegion = getBenchmarkRegion(SEL);
+
+  // 콘솔 검증 로그 출력
+  const selectedRegion = SEL;
+  console.log("선택지역:", selectedRegion);
+  console.log("유사지역:", state.similarRegions);
+  console.log("벤치마킹지역:", state.benchmarkRegion);
+
+  document.getElementById('steps-bar').style.display='flex';
+  document.getElementById('main').style.display='block';
+  goStep(1);
+  document.getElementById('main').scrollIntoView({behavior:'smooth'});
+}
+
+// ─── NAVIGATION ───────────────────────────────
+function goStep(n) {
+  STEP=n;
+  document.querySelectorAll('.panel').forEach(p=>p.classList.remove('on'));
+  document.getElementById('p'+n).classList.add('on');
+  document.querySelectorAll('.stab').forEach(t=>{
+    const tn=+t.dataset.s; t.classList.remove('active','done');
+    if(tn===n)t.classList.add('active'); else if(tn<n)t.classList.add('done');
+  });
+  if(SEL) render(n);
+  window.scrollTo({top:document.getElementById('steps-bar').offsetTop-80,behavior:'smooth'});
+}
+function render(n) {
+  if(n===1)r1(); else if(n===2)r2(); else if(n===3)r3(); else r4();
+}
+
+// ─── HELPERS ──────────────────────────────────
+function sc(v){return v>=70?'sh':v>=40?'sm':'sl';}
+function fc(v){return v>=70?'fh':v>=40?'fm':'fl';}
+function getTop(d){
+  return [{k:'접근성',v:d.접근성},{k:'도서관부족',v:d.도서관부족},{k:'사서부족',v:d.사서부족},{k:'노후화',v:d.노후화}]
+    .sort((a,b)=>b.v-a.v).slice(0,2).map(x=>x.k);
+}
+function clusterDesc(c){
+  if(c==='군집 1')return '소멸압력·인프라취약 동시 고위험군';
+  if(c==='군집 2')return '소멸압력 낮으나 인프라 취약 사각지대군';
+  return '인프라 상대적 안정군';
+}
+function getMainProblems(d){
+  return [{n:'자원부족',v:d.도서관부족 * 0.25},{n:'인구당사서',v:d.사서부족 * 0.10},{n:'건물연식',v:d.노후화 * 0.25},{n:'교통불편',v:d.접근성 * 0.40}]
+    .sort((a,b)=>b.v-a.v).slice(0,2).map(x=>x.n);
+}
+
+// ─── STEP 1 ──────────────────────────────────
+let RC_inst=null, BC_inst=null;
+function r1() {
+  const d=SEL;
+  const mets=[{k:'도서관부족',l:'자원부족',i:'📚',dsc:'주민 1인당 장서 수 및 운영 자원이 부족하여 문화서비스 공급 역량이 낮은 상태입니다.'},
+              {k:'사서부족',l:'인구당사서',i:'👩‍💼',dsc:'사서 1인당 담당 인구가 많아 전문 서비스 제공이 어려운 상태입니다.'},
+              {k:'노후화',l:'건물연식',i:'🏚️',dsc:'노후화된 시설로 인해 이용 환경과 서비스 품질 개선이 필요한 상태입니다.'},
+              {k:'접근성',l:'교통불편',i:'🚌',dsc:'도서관 접근성이 낮아 주민의 이용 편의성이 저하된 상태입니다.'}];
+  // pills
+  document.getElementById('pills1').innerHTML=`
+    <div class="pill">📍 <span>지역</span> <strong>${d.시도} ${d.시군구}</strong></div>
+    <div class="pill">👥 <span>인구</span> <strong>${d.인구_2025.toLocaleString()}명</strong></div>
+    <div class="pill">🏛️ <span>도서관</span> <strong>${d.도서관수}개관</strong></div>
+    <div class="pill">📊 <span>CMRI</span> <strong>${d.CMRI}점</strong></div>
+    <div class="pill">🏷️ <span>군집</span> <strong>${d.군집}</strong></div>
+    <div class="pill">👴 <span>고령화율</span> <strong>${d.고령화율}%</strong></div>`;
+
+  // 실시간 가중평균 계산:
+  // 건물연식(0.25), 인구당사서(0.10), 자원부족(0.25), 교통불편(0.40)
+  const overall = (0.25 * d.노후화 + 0.10 * d.사서부족 + 0.25 * d.도서관부족 + 0.40 * d.접근성).toFixed(1);
+
+  // 핵심 문제 판단 기준: 가중 점수 중 가장 높은 항목
+  const wScores = {
+    '노후화': d.노후화 * 0.25,
+    '사서부족': d.사서부족 * 0.10,
+    '도서관부족': d.도서관부족 * 0.25,
+    '접근성': d.접근성 * 0.40
+  };
+  const maxWeightedKey = Object.keys(wScores).sort((a,b)=>wScores[b]-wScores[a])[0];
+  const maxWeightedVal = wScores[maxWeightedKey];
+  const crit = mets.filter(m => m.k === maxWeightedKey);
+
+  // cards (4개 지표 카드 + 1개 종합 불편점수 카드)
+  const cardsHtml = mets.map(m=>{
+    const v=d[m.k];
+    const isCrit = m.k === maxWeightedKey;
+    const weight = m.k==='노후화'? 0.25 : m.k==='사서부족'? 0.10 : m.k==='도서관부족'? 0.25 : 0.40;
+    const wVal = (v * weight).toFixed(1);
+    return `<div class="mc ${isCrit?'crit':''}">
+      <div class="ml">${m.i} ${m.l}</div>
+      <div class="mv ${sc(v)}">${wVal}<span style="font-size:.9rem;font-weight:400;color:var(--dim)">점</span> <span style="font-size:0.78rem;font-weight:normal;color:var(--dim);margin-left:4px;">(원점수 ${v}점)</span></div>
+      <div class="mbar"><div class="mfill ${fc(v)}" style="width:${v}%"></div></div>
+      <div class="md">원점수 ${v}점 × 가중치 ${weight.toFixed(2)}</div></div>`;
+  }).join('') + `
+    <div class="mc" style="border-color: rgba(99, 102, 241, 0.35); background: rgba(99, 102, 241, 0.05);">
+      <div class="ml">📊 종합 불편점수</div>
+      <div class="mv ${sc(overall)}">${overall}<span style="font-size:.9rem;font-weight:400;color:var(--dim)">점</span></div>
+      <div class="mbar"><div class="mfill ${fc(overall)}" style="width:${overall}%"></div></div>
+      <div class="md">가중평균 반영 종합 점수</div>
+    </div>`;
+
+  document.getElementById('mcs').innerHTML=cardsHtml;
+
+  // diagnosis
+  const sortedMets = mets.slice().sort((a,b)=>{
+    const wa = d[a.k] * (a.k==='노후화'?0.25:a.k==='사서부족'?0.10:a.k==='도서관부족'?0.25:0.40);
+    const wb = d[b.k] * (b.k==='노후화'?0.25:b.k==='사서부족'?0.10:b.k==='도서관부족'?0.25:0.40);
+    return wb - wa;
+  });
+  const top1 = sortedMets[0];
+  const top1WeightedVal = (d[top1.k] * (top1.k==='노후화'?0.25:top1.k==='사서부족'?0.10:top1.k==='도서관부족'?0.25:0.40)).toFixed(1);
+  const top2 = sortedMets[1];
+  const top2WeightedVal = (d[top2.k] * (top2.k==='노후화'?0.25:top2.k==='사서부족'?0.10:top2.k==='도서관부족'?0.25:0.40)).toFixed(1);
+
+  document.getElementById('diag').innerHTML=`
+    <h3>🎯 진단 결과: ${d.시도} ${d.시군구}</h3>
+    <p>${d.시도} ${d.시군구}의 가중평균 기준 종합 불편점수는 <strong>${overall}점</strong>입니다.<br>
+    가중치를 적용한 실질 영향력 분석 결과, <strong style="color:var(--rose)">${top1.l}(가중치 반영 점수 ${top1WeightedVal}점)</strong>과 <strong style="color:var(--amber)">${top2.l}(가중치 반영 점수 ${top2WeightedVal}점)</strong>이 상위 불편 요인으로 나타났습니다.<br>
+    이 중 실질 영향력이 가장 높은 <strong style="color:var(--rose)">"${top1.l}"</strong>이 핵심 불편요인(🔴)이자 최종 추천 정책(What)의 종류를 결정하는 핵심 엔진으로 작동합니다. ${top1.dsc}<br>
+    CMRI 지수는 ${d.CMRI}점으로 ${d.군집} (${clusterDesc(d.군집)})에 속하며, 고령화율 ${d.고령화율}%는 ${d.고령화율>=20?'고령사회':'일반사회'} 수준입니다.</p>`;
+  // ─── STEP1 하단: 핵심 문제 기반 1차 정책 추천 ───────────────────
+  const indicatorMap = {
+    '노후화': '건물연식',
+    '사서부족': '인구당사서',
+    '도서관부족': '자원부족',
+    '접근성': '교통불편'
+  };
+  const highestIndicatorName = indicatorMap[maxWeightedKey];
+  const matchedPolicies = POLICIES.filter(p => p.indicators.includes(highestIndicatorName));
+  state.selectedPolicy = matchedPolicies[0];
+
+  const pmColors = {
+    '노후화': { color: 'var(--rose)', bg: 'rgba(244,63,94,0.08)', border: 'rgba(244,63,94,0.25)', label: '건물연식' },
+    '사서부족': { color: 'var(--amber)', bg: 'rgba(245,158,11,0.08)', border: 'rgba(245,158,11,0.25)', label: '인구당사서' },
+    '도서관부족': { color: 'var(--purple)', bg: 'rgba(99,102,241,0.08)', border: 'rgba(99,102,241,0.25)', label: '자원부족' },
+    '접근성': { color: 'var(--cyan)', bg: 'rgba(6,182,212,0.08)', border: 'rgba(6,182,212,0.25)', label: '교통불편' }
+  };
+  const pm = pmColors[maxWeightedKey];
+
+  document.getElementById('policy-mapping-1').innerHTML = `
+    <div class="card" style="border-color:${pm.border}; background:${pm.bg}; margin-top:4px;">
+      <div class="ct" style="color:${pm.color};">🎯 STEP1 진단 결과 → 1차 추천 정책 (핵심 문제: ${pm.label})</div>
+      <p style="font-size:0.85rem; color:var(--muted); margin-bottom:18px; line-height:1.7;">
+        ${d.시군구}에서 가중 점수(실질 영향력)가 가장 높은 <strong>${pm.label}</strong> 문제에 부합하는 정책 DB 맞춤형 추천 결과입니다.
+      </p>
+      <div class="g2" style="gap:14px;">
+        ${matchedPolicies.map(p => `
+          <div style="background:var(--card2); border:1px solid var(--border); border-radius:12px; padding:16px; border-left:3px solid ${pm.color};">
+            <div style="font-size:1.2rem; margin-bottom:6px;">${p.icon} <strong style="font-size:0.95rem;">${p.name}</strong></div>
+            <div style="font-size:0.72rem; color:${pm.color}; font-weight:700; margin-bottom:6px; text-transform:uppercase; letter-spacing:0.05em;">${p.type} · 출처: ${p.cmri_conn}</div>
+            <div style="font-size:0.82rem; color:var(--muted); line-height:1.65; margin-bottom:6px;">${p.desc}</div>
+            <div style="font-size:0.72rem; color:var(--dim);">대상: ${p.rec_target}</div>
+          </div>`).join('')}
+      </div>
+    </div>`;
+
+  // charts
+  setTimeout(()=>{
+    if(RC_inst)RC_inst.destroy();
+    RC_inst=new Chart(document.getElementById('radar').getContext('2d'),{
+      type:'radar',
+      data:{labels:mets.map(m=>m.l),datasets:[{label:`${d.시군구} 불편점수`,data:mets.map(m=>d[m.k]),
+        backgroundColor:'rgba(99,102,241,.18)',borderColor:'rgba(99,102,241,.8)',borderWidth:2,
+        pointBackgroundColor:mets.map(m=>d[m.k]>=70?'rgba(244,63,94,.9)':'rgba(99,102,241,.9)'),pointRadius:6}]},
+      options:{responsive:true,maintainAspectRatio:false,scales:{r:{min:0,max:100,
+        grid:{color:'rgba(255,255,255,.07)'},angleLines:{color:'rgba(255,255,255,.07)'},
+        ticks:{color:'rgba(255,255,255,.3)',backdropColor:'transparent',stepSize:25,font:{size:10}},
+        pointLabels:{color:'rgba(255,255,255,.7)',font:{size:12,weight:'600'}}}},
+        plugins:{legend:{labels:{color:'rgba(255,255,255,.7)',font:{size:12}}}}}
+    });
+    if(BC_inst)BC_inst.destroy();
+    const vals=mets.map(m=>d[m.k]);
+    BC_inst=new Chart(document.getElementById('bar').getContext('2d'),{
+      type:'bar',
+      data:{labels:mets.map(m=>m.l),datasets:[{label:'불편점수',data:vals,
+        backgroundColor:vals.map(v=>v>=70?'rgba(244,63,94,.72)':v>=40?'rgba(249,115,22,.72)':'rgba(34,197,94,.72)'),
+        borderColor:vals.map(v=>v>=70?'rgba(244,63,94,1)':v>=40?'rgba(249,115,22,1)':'rgba(34,197,94,1)'),
+        borderWidth:1.5,borderRadius:8}]},
+      options:{responsive:true,maintainAspectRatio:false,
+        plugins:{legend:{display:false},tooltip:{callbacks:{label:c=>`${c.raw}점 (100점 만점)`}}},
+        scales:{x:{grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.6)',font:{size:11,weight:'600'}}},
+                y:{min:0,max:100,grid:{color:'rgba(255,255,255,.04)'},ticks:{color:'rgba(255,255,255,.4)',font:{size:10}}}}}
+    });
+  },100);
+}
+
+// ─── STEP 2 : 문화 유사 지역 탐색 ───
+function renderWordCloud(containerId, words) {
+  const container = document.getElementById(containerId);
+  container.innerHTML = '';
+  const colors = ['var(--cyan)', 'var(--purple)', 'var(--blue)', 'var(--green)', 'var(--amber)', 'var(--rose)'];
+  words.forEach((word, idx) => {
+    const fontSize = 1.35 - (idx * 0.04); // font size range
+    const color = colors[idx % colors.length];
+    const tag = document.createElement('span');
+    tag.style.fontSize = `${fontSize}rem`;
+    tag.style.color = color;
+    tag.style.fontWeight = idx < 3 ? '800' : idx < 7 ? '700' : '500';
+    tag.style.margin = '3px 6px';
+    tag.style.display = 'inline-block';
+    tag.style.cursor = 'pointer';
+    tag.style.transition = 'transform 0.2s';
+    tag.textContent = word;
+    tag.onmouseover = () => tag.style.transform = 'scale(1.15)';
+    tag.onmouseout = () => tag.style.transform = 'scale(1)';
+    container.appendChild(tag);
+  });
+}
+
+function r2() {
+  const d = SEL;
+  const simInfo = CULTURAL_SIMILARITY[d.시군구];
+  if (!simInfo) {
+    document.getElementById('match-summary-2').innerHTML = '<p style="color:var(--rose);">해당 지역의 문화 매칭 데이터가 존재하지 않습니다.</p>';
+    return;
+  }
+
+  const simPct = (simInfo.similarity * 100).toFixed(1);
+  const bCats = simInfo.categories || [];
+  const sCats = simInfo.matched_categories || [];
+  
+  const catStyles = {
+    "자연·생태형": { bg: "rgba(16,185,129,0.12)", color: "#10b981", icon: "🌿" },
+    "역사·전통형": { bg: "rgba(245,158,11,0.12)", color: "#f59e0b", icon: "🏛️" },
+    "청년문화형": { bg: "rgba(244,63,94,0.12)", color: "#f43f5e", icon: "⚡" },
+    "해양관광형": { bg: "rgba(6,182,212,0.12)", color: "#06b6d4", icon: "🌊" },
+    "산업·업무형": { bg: "rgba(100,116,139,0.12)", color: "#94a3b8", icon: "🏢" },
+    "예술문화형": { bg: "rgba(99,102,241,0.12)", color: "#6366f1", icon: "🎨" },
+    "해양문화형": { bg: "rgba(6,182,212,0.12)", color: "#06b6d4", icon: "🌊" },
+    "생활문화형": { bg: "rgba(16,185,129,0.12)", color: "#10b981", icon: "📖" },
+    "자연·생태형": { bg: "rgba(16,185,129,0.12)", color: "#10b981", icon: "🌿" }
+  };
+  
+  const renderBadges = (cats) => cats.map(c => {
+    const style = catStyles[c] || { bg: "rgba(255,255,255,0.08)", color: "var(--text)", icon: "📁" };
+    return `<span style="display:inline-flex; align-items:center; gap:4px; padding:3px 8px; border-radius:6px; font-size:0.75rem; font-weight:700; background:${style.bg}; color:${style.color};">${style.icon} ${c}</span>`;
+  }).join(' ');
+
+  document.getElementById('match-summary-2').innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:16px;">
+      <div style="display:flex; flex-wrap:wrap; align-items:center; justify-content:space-between; gap:16px; border-bottom:1px solid var(--border); padding-bottom:14px;">
+        <div>
+          <div style="font-size:1.25rem; font-weight:900; color:var(--text);">${d.시도} ${d.시군구} ↔ 서울 <span style="color:var(--purple);">${simInfo.matched_seoul}</span></div>
+          <div style="font-size:0.88rem; color:var(--muted); margin-top:4px;">
+            문화 정체성 기반 코사인 유사도: <strong style="color:var(--cyan); font-size:1.05rem;">${simInfo.similarity.toFixed(4)} (${simPct}%)</strong>
+          </div>
+        </div>
+        <div style="display:flex; flex-direction:column; gap:4px; align-items:flex-start;">
+          <div style="font-size:0.7rem; color:var(--dim); font-weight:700; text-transform:uppercase; letter-spacing:0.05em;">지역별 문화 정체성 유형</div>
+          <div style="display:flex; flex-wrap:wrap; gap:10px; align-items:center; margin-top:2px;">
+            <div style="display:flex; align-items:center; gap:5px;">
+              <span style="font-size:0.72rem; color:var(--muted); font-weight:600;">${d.시군구}:</span>
+              ${renderBadges(bCats)}
+            </div>
+            <div style="display:flex; align-items:center; gap:5px; border-left:1px solid var(--border); padding-left:10px;">
+              <span style="font-size:0.72rem; color:var(--muted); font-weight:600;">${simInfo.matched_seoul}:</span>
+              ${renderBadges(sCats)}
+            </div>
+          </div>
+        </div>
+      </div>
+      
+      <div style="background:rgba(99,102,241,0.06); border:1px solid rgba(99,102,241,0.18); border-radius:10px; padding:14px 18px;">
+        <div style="display:flex; align-items:center; gap:6px; font-size:0.82rem; font-weight:800; color:var(--purple); margin-bottom:10px; text-transform:uppercase; letter-spacing:0.05em;">
+          <span>🤖</span> AI 정밀 매칭 분석 사유
+        </div>
+        <div style="font-size:0.92rem; color:var(--text); line-height:1.75; font-weight:500; margin-bottom:18px;">
+          ${simInfo.match_reason}
+        </div>
+        
+        <div style="border-top:1px solid var(--border); padding-top:14px; display:flex; flex-direction:column; gap:12px;">
+          <div>
+            <div style="font-size:0.75rem; color:var(--muted); font-weight:700; margin-bottom:6px; letter-spacing:0.05em;">🎯 STEP1 결정 정책 (What)</div>
+            <div style="background:var(--card2); border:1px solid var(--border); padding:12px 14px; border-radius:8px; display:flex; align-items:center; gap:10px;">
+              <span style="font-size:1.5rem;">${state.selectedPolicy ? state.selectedPolicy.icon : '📚'}</span>
+              <div>
+                <strong style="font-size:0.92rem; color:#fff;">${state.selectedPolicy ? state.selectedPolicy.name : '도서관 정책'}</strong>
+                <div style="font-size:0.75rem; color:var(--muted); margin-top:2px;">${state.selectedPolicy ? state.selectedPolicy.type : ''}</div>
+              </div>
+            </div>
+          </div>
+          <div>
+            <div style="font-size:0.75rem; color:var(--muted); font-weight:700; margin-bottom:6px; letter-spacing:0.05em;">⚙️ 추천 운영 방식 (How)</div>
+            <div style="background:rgba(6,182,212,0.06); border:1px solid rgba(6,182,212,0.18); padding:14px 16px; border-radius:8px;">
+              <div style="font-weight:800; color:var(--cyan); font-size:1rem; margin-bottom:8px;">${simInfo.policy.name}</div>
+              <div style="font-size:0.84rem; color:var(--text); margin-bottom:6px;"><strong>운영 목적:</strong> ${simInfo.policy.objective}</div>
+              <div style="font-size:0.84rem; color:var(--muted); margin-bottom:6px; line-height:1.6;"><strong>주요 내용:</strong> ${simInfo.policy.content}</div>
+              <div style="font-size:0.84rem; color:var(--green); font-weight:600;"><strong>기대 효과:</strong> ${simInfo.policy.effect}</div>
+            </div>
+          </div>
+        </div>
+      </div>
+    </div>`;
+
+  // 2. Heatmap Grid
+  const heatmapContainer = document.getElementById('heatmap-container');
+  heatmapContainer.innerHTML = '';
+  const sims = simInfo.sims_to_seoul;
+  const maxSim = simInfo.similarity;
+  const seoulList = Object.keys(sims).sort((a,b)=>sims[b]-sims[a]);
+  
+  const grid = document.createElement('div');
+  grid.style.display = 'grid';
+  grid.style.gridTemplateColumns = 'repeat(5, 1fr)';
+  grid.style.gap = '8px';
+  grid.style.width = '100%';
+  
+  seoulList.forEach(seoulName => {
+    const val = sims[seoulName];
+    const pct = maxSim > 0.10 ? (val - 0.10) / (maxSim - 0.10) : 0.5;
+    const cell = document.createElement('div');
+    cell.style.padding = '10px 5px';
+    cell.style.borderRadius = '8px';
+    cell.style.textAlign = 'center';
+    cell.style.fontSize = '0.78rem';
+    cell.style.fontWeight = '700';
+    cell.style.cursor = 'pointer';
+    cell.style.transition = 'transform 0.2s, box-shadow 0.2s';
+    cell.style.background = `rgba(99, 102, 241, ${0.1 + pct * 0.9})`;
+    cell.style.border = val === maxSim ? '2px solid var(--rose)' : '1px solid var(--border)';
+    
+    cell.onmouseover = () => {
+      cell.style.transform = 'scale(1.05)';
+      cell.style.boxShadow = '0 4px 12px rgba(255,255,255,0.1)';
+    };
+    cell.onmouseout = () => {
+      cell.style.transform = 'scale(1)';
+      cell.style.boxShadow = 'none';
+    };
+    
+    cell.title = `서울 ${seoulName}와의 코사인 유사도: ${val}`;
+    cell.innerHTML = `
+      <div style="font-size:0.7rem; color:var(--text); opacity:0.85;">${seoulName}</div>
+      <div style="font-size:0.82rem; font-weight:800; color:var(--cyan); margin-top:2px;">${val.toFixed(4)}</div>
+    `;
+    grid.appendChild(cell);
+  });
+  heatmapContainer.appendChild(grid);
+
+  // 3. WordClouds
+  document.getElementById('wc-label-local').textContent = `📍 ${d.시군구} 대표 문화 키워드`;
+  document.getElementById('wc-label-seoul').textContent = `🗺️ 매칭 서울 ${simInfo.matched_seoul} 대표 문화 키워드`;
+  renderWordCloud('wc-local', simInfo.keywords);
+  renderWordCloud('wc-seoul', simInfo.matched_keywords);
+
+  // 4. ② 유사 지역 도서관 정책 분석 (Section II)
+  const seoulName = simInfo.matched_seoul;
+  const profiles = {
+    "강북구": {
+      policies: ["작은도서관 활성화", "북스타트 프로그램", "상호대차 서비스", "지역 특화 독서 프로그램"],
+      features: ["주민 참여형 독서 동아리가 대단히 활발하게 작동함", "아동 및 육아 친화형 밀착 프로그램 중심 운영", "외곽 및 낙후 거점 간 통합 도서 공유 네트워크 활성화"]
+    },
+    "강서구": {
+      policies: ["스마트도서관", "야간 운영", "디지털자료실", "지역 특화 독서 프로그램"],
+      features: ["신도시 유입 거주 지대 및 젊은 직장인의 출퇴근 이용률이 높음", "디지털 학습 인프라 및 모바일 연계 무인 도서 예약 시스템 구축", "평일 직장인을 위한 야간 연장 및 주말 복합 프로그램 활성화"]
+    },
+    "구로구": {
+      policies: ["무인 대출·반납 시스템", "야간 운영", "스마트도서관", "직장인 독서 프로그램"],
+      features: ["산업 공단 배후 직장인들의 생활 주기에 맞춘 무인 및 예약형 모바일 대출 중심", "G밸리 직장인 대상 인문학 강좌 및 모바일 스마트도서관 고도화", "유동인구가 많아 통근용 스마트 인프라 만족도 우수"]
+    },
+    "금천구": {
+      policies: ["디지털자료실", "미디어실", "작은도서관 활성화", "독서 프로그램"],
+      features: ["청소년 및 취약 계층을 위한 디지털 멀티미디어 창작 장비 집중 지원", "작은도서관 간 통합 도서 상호대차 및 마을 배달 연동", "세대 간 지식 정보 격차 해소를 위한 키오스크/스마트 문해 특화실"]
+    },
+    "노원구": {
+      policies: ["작은도서관 활성화", "청소년 독서 프로그램", "책바다·책나래 서비스", "생활SOC 복합도서관"],
+      features: ["인구 밀집형 아파트 지구 주민들의 도보 거점 작은도서관 네트워크 구축", "문화 체육 시설 및 국공립 어린이집이 포함된 다목적 복합도서관 활성화", "청소년들의 문화 학습 창작 공간 지원 만족도 우수"]
+    },
+    "도봉구": {
+      policies: ["도서관 리모델링", "북스타트 프로그램", "지역 특화 독서 프로그램", "이동도서관"],
+      features: ["수변 생태 환경 및 녹색 공원과 조화되는 친환경 도서관 공간 설계", "영유아 보육 친화적인 북스타트 전용 공간 리노베이션", "도서 시설 부족 지대를 타겟한 이동도서관 차량 순회 활성화"]
+    },
+    "동대문구": {
+      policies: ["지역 특화 독서 프로그램", "상호대차 서비스", "북스타트 프로그램", "독서 프로그램"],
+      features: ["어르신 인구 비중을 고려한 한방 웰니스 건강 인문학 및 특화 교실 운영", "역사 사적지와 연계된 향토 문화 아카이브 인문 독서 아카데미 정례화", "지역 대학 및 공공 도서관 간 도서 상호대차 네트워크 구축"]
+    },
+    "동작구": {
+      policies: ["청소년 독서 프로그램", "독서 프로그램", "디지털자료실", "야간 운영"],
+      features: ["수험생 및 취업 준비 청년 인구 밀집에 따른 맞춤형 힐링 학습 테마실", "퇴근 시간 이후의 야간 연장 및 청년 주도 진로 탐색 북살롱 운영", "정서적 고립감 해소를 위한 치유 도서 북테라피 프로그램 안착"]
+    },
+    "서초구": {
+      policies: ["스마트도서관", "무인 대출·반납 시스템", "야간 운영", "디지털자료실"],
+      features: ["24시간 연중무휴 이용 가능한 첨단 무인 스마트도서관 선도적 도입", "퇴근 직장인 맞춤형 모바일 도서 예약 및 퇴근길 야간 강좌 연계", "첨단 멀티미디어실 및 디지털 지식 정보 수집 인프라 우수"]
+    },
+    "송파구": {
+      policies: ["스마트도서관", "생활SOC 복합도서관", "책바다·책나래 서비스", "독서 프로그램"],
+      features: ["가족 단위 거주 인프라에 대응하는 대형 공공도서관 및 다목적 센터 결합", "주민 유동 거점에 연동된 지하철 스마트 U-도서관 활성화", "어린이 및 청소년 미디어 창작실의 주민 메이커 스페이스 교육 접목"]
+    },
+    "양천구": {
+      policies: ["도서관 리모델링", "작은도서관 활성화", "북스타트 프로그램", "청소년 독서 프로그램"],
+      features: ["노후화된 공공시설을 친환경 나무 복합 라운지 형태로 리모델링 단행", "학업 인구가 많아 작은도서관 공간 활성화를 통한 주민 학습실 제공", "아동/보육 중심의 전용 놀이 독서실 운영 및 보육 만족도 개선"]
+    },
+    "영등포구": {
+      policies: ["디지털자료실", "미디어실", "야간 운영", "지역 특화 독서 프로그램"],
+      features: ["여의도 및 업무 단지 근로자를 위한 직장인 맞춤 야간 연장 프로그램", "디지털 메이커스페이스 창작소 설치로 미디어 창작실 만족도 제고", "수변 역사문화 콘텐츠 및 근로자 연계 독서 힐링 프로그램"]
+    },
+    "용산구": {
+      policies: ["지역 특화 독서 프로그램", "상호대차 서비스", "미디어실", "독서 프로그램"],
+      features: ["다문화 가정 주민들을 위한 세계 문화 교류 및 다국어 특화 서재 운영", "한강 수변 생태와 연계한 주민 환경 생태 독서 쉼터 정례화", "지역 대학 및 인근 거점 도서관을 연계한 도서 유기적 교환"]
+    },
+    "중구": {
+      policies: ["작은도서관 활성화", "이동도서관", "무인 대출·반납 시스템", "상호대차 서비스"],
+      features: ["도심 비즈니스 중심가 통근 주민들을 위한 지하철 무인 도서 예약 및 유기 배달", "골목길 작은도서관 활성화를 통한 장서 접근성 보완", "역사 문화재 중심 주민 밀착형 야외 북콘서트 및 인문 프로그램"]
+    }
+  };
+
+  const prof = profiles[seoulName] || {
+    policies: ["작은도서관 활성화", "스마트도서관", "독서 프로그램"],
+    features: ["주민 생활밀착형 복합 문화 프로그램 운영", "지리적 한계 극복을 위한 상호 공유 네트워크 활성화"]
+  };
+
+  const analysisEl = document.getElementById('step2-policy-analysis');
+  analysisEl.style.display = 'block';
+  analysisEl.innerHTML = `
+    <div class="ct" style="color:var(--purple);">📚 서울 ${seoulName} 도서관 우수 운영 사례 분석</div>
+    <div style="font-size:0.86rem; color:var(--muted); line-height:1.75;">
+      ${d.시군구}와 문화 정체성 유사도가 가장 높은 <strong>서울 ${seoulName}</strong>의 구체적인 도서관 운영 방식 분석 결과입니다.
+    </div>
+    <div style="display:grid; grid-template-columns:1fr 1fr; gap:16px; margin-top:14px;">
+      <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:15px;">
+        <div style="font-weight:800; color:var(--purple); font-size:0.88rem; margin-bottom:8px; display:flex; align-items:center; gap:5px;">📋 대표 운영 정책</div>
+        <div style="display:flex; flex-wrap:wrap; gap:6px;">
+          ${prof.policies.map(p => `<span style="font-size:0.75rem; background:rgba(99,102,241,0.08); color:var(--purple); border:1px solid rgba(99,102,241,0.2); padding:3px 8px; border-radius:6px; font-weight:700;">${p}</span>`).join('')}
+        </div>
+      </div>
+      <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:15px;">
+        <div style="font-weight:800; color:var(--cyan); font-size:0.88rem; margin-bottom:8px; display:flex; align-items:center; gap:5px;">🚀 주요 운영 특징</div>
+        <ul style="font-size:0.8rem; color:var(--muted); padding-left:14px; margin:0; line-height:1.65; list-style-type:disc;">
+          ${prof.features.map(f => `<li>${f}</li>`).join('')}
+        </ul>
+      </div>
+    </div>
+  `;
+
+  // 5. ③ 벤치마킹 적용 전략 (Section III)
+  // 가장 심각한 지표 계산
+  const scores = [
+    { k: '접근성', l: '교통불편', v: d.접근성 * 0.40, raw: d.접근성, w: 0.40 },
+    { k: '노후화', l: '건물연식', v: d.노후화 * 0.25, raw: d.노후화, w: 0.25 },
+    { k: '도서관부족', l: '자원부족', v: d.도서관부족 * 0.25, raw: d.도서관부족, w: 0.25 },
+    { k: '사서부족', l: '인구당사서', v: d.사서부족 * 0.10, raw: d.사서부족, w: 0.10 }
+  ].sort((a,b) => b.v - a.v);
+
+  // 상위 3대 문제 추출 (혹은 값 10점 이상)
+  const mainProbs = scores.slice(0, 3).filter(x => x.v >= 2.0);
+
+  // 지표별 정책 매칭 풀
+  const indicatorPolicyMapping = {
+    '접근성': {
+      policies: ["스마트도서관", "무인 대출·반납 시스템", "이동도서관", "상호대차 서비스", "책바다·책나래 서비스"],
+      desc: '도서관 접근성이 낮아 주민의 이용 편의성이 저하된 상태입니다.'
+    },
+    '도서관부족': {
+      policies: ["작은도서관 활성화", "생활SOC 복합도서관", "책바다·책나래 서비스", "상호대차 서비스"],
+      desc: '주민 1인당 장서 수 및 운영 자원이 부족하여 문화서비스 공급 역량이 낮은 상태입니다.'
+    },
+    '노후화': {
+      policies: ["도서관 리모델링", "디지털자료실", "미디어실"],
+      desc: '노후화된 시설로 인해 이용 환경과 서비스 품질 개선이 필요한 상태입니다.'
+    },
+    '사서부족': {
+      policies: ["순회사서 지원", "무인 대출·반납 시스템", "스마트도서관", "야간 운영"],
+      desc: '사서 1인당 담당 인구가 많아 전문 서비스 제공이 어려운 상태입니다.'
+    }
+  };
+
+  // 적용 전략 리스트 빌드
+  let strategyItemsHtml = '';
+  mainProbs.forEach(prob => {
+    const mapping = indicatorPolicyMapping[prob.k];
+    // 서울 자치구의 정책 풀 중에서 이 지표에 속하는 정책을 최우선 매치
+    let selectedPolicy = mapping.policies.find(p => prof.policies.includes(p));
+    // 매칭되는 게 없으면 그 지표의 대표 정책 중 첫 번째 선택
+    if (!selectedPolicy) {
+      selectedPolicy = mapping.policies[0];
+    }
+
+    // 정책별 맞춤형 구체적 실행 지침
+    let customRationale = "";
+    if (selectedPolicy === "야간 운영") {
+      customRationale = `→ 직장인과 통근 인구가 많은 ${d.시군구}의 거주 특성을 반영해 퇴근 시간 이후 인프라 접근 시간 확대`;
+    } else if (selectedPolicy === "스마트도서관" || selectedPolicy === "무인 대출·반납 시스템") {
+      customRationale = `→ 주요 대중교통 역사 및 거점에 무인 스마트 인프라를 도입하여 물리적 방문 장벽을 해소`;
+    } else if (selectedPolicy === "작은도서관 활성화") {
+      customRationale = `→ 유휴 아파트 및 주민 센터 공간을 활용해 저예산 고효율의 동네 중심 밀착형 지식 거점 형성`;
+    } else if (selectedPolicy === "상호대차 서비스" || selectedPolicy === "책바다·책나래 서비스") {
+      customRationale = `→ 부족한 단일 도서관의 책을 극복하고자 인근 도서관 및 국가 데이터망 간 상호 교대 배달망 확대`;
+    } else if (selectedPolicy === "순회사서 지원") {
+      customRationale = `→ 작은도서관 및 소형 시설의 사서 인력 부족을 극복하기 위해 분류 및 정리 전문가를 순회 파견해 전문화`;
+    } else if (selectedPolicy === "도서관 리모델링") {
+      customRationale = `→ 낡고 방치된 노후 열람실을 친환경 나무 라운지나 오픈 북카페형 공간으로 리노베이션 단행`;
+    } else if (selectedPolicy === "이동도서관") {
+      customRationale = `→ 물리적 거리가 멀고 대중교통이 단절된 산간/어촌 취약 지대에 이동형 차량 독서실 정기 배치`;
+    } else if (selectedPolicy === "생활SOC 복합도서관") {
+      customRationale = `→ 공공도서관, 보육, 생활문화센터를 융합 건립해 가족 단위 방문자들의 다차원 문화 수요 해결`;
+    } else if (selectedPolicy === "디지털자료실" || selectedPolicy === "미디어실") {
+      customRationale = `→ 미디어 체험 및 1인 크리에이터 메이커 공간을 신설해 정보 소외 청소년들의 미디어 학습 충족`;
+    } else {
+      customRationale = `→ 아동 및 청소년, 고령 세대를 고려한 생애주기 맞춤형 특화 강좌로 도서관 활성화 만족도 제고`;
+    }
+
+    strategyItemsHtml += `
+      <div style="background:var(--card2); border:1px solid var(--border); border-radius:10px; padding:15px; display:flex; flex-direction:column; gap:6px;">
+        <div style="display:flex; justify-content:between; align-items:center; border-bottom:1px dashed var(--border); padding-bottom:6px;">
+          <strong style="color:var(--rose); font-size:0.86rem;">⚠️ 현안 문제: ${prob.l} (가중 점수 ${prob.v.toFixed(1)}점)</strong>
+          <span style="font-size:0.75rem; color:var(--dim); margin-left:auto;">원점수 ${prob.raw}점</span>
+        </div>
+        <div style="font-size:0.8rem; color:var(--muted); line-height:1.5; margin-bottom:4px;">
+          ${mapping.desc}
+        </div>
+        <div style="background:rgba(16,185,129,0.04); border:1px solid rgba(16,185,129,0.12); padding:10px 12px; border-radius:6px; display:flex; flex-direction:column; gap:4px;">
+          <div style="font-size:0.82rem; font-weight:800; color:var(--green); display:flex; align-items:center; gap:4px;">
+            <span>✔</span> 벤치마킹 도입 방식: ${selectedPolicy}
+          </div>
+          <div style="font-size:0.78rem; color:var(--muted); line-height:1.5;">
+            ${customRationale}
+          </div>
+        </div>
+      </div>
+    `;
+  });
+
+  const strategyEl = document.getElementById('step2-benchmarking-strategy');
+  strategyEl.style.display = 'block';
+  strategyEl.innerHTML = `
+    <div class="ct" style="color:var(--green);">📋 ${d.시도} ${d.시군구} 벤치마킹 적용 전략</div>
+    <div style="font-size:0.86rem; color:var(--muted); margin-bottom:16px; line-height:1.75;">
+      유사 지역인 <strong>서울 ${seoulName}</strong>의 강점 정책 중에서 ${d.시군구}의 현안 문제를 해결할 수 있는 맞춤형 도입 실행안입니다.
+    </div>
+    <div style="display:flex; flex-direction:column; gap:14px;">
+      ${strategyItemsHtml}
+    </div>
+  `;
+}
+
+// ─── STEP 3 : 최종 추천 보고서 (What + How + Reference 통합) ───
+function r3() {
+  const d = SEL;
+  const clusterInfo = CL[d.군집];
+  const clusterSameGroup = clusterInfo ? clusterInfo.m.filter(m => !m.includes(d.시군구)) : [];
+  
+  const goodPeers = DISTRICTS.filter(r =>
+    clusterSameGroup.includes(`${r.시도} ${r.시군구}`) && r.인프라갭 > 0
+  ).sort((a,b) => b.인프라갭 - a.인프라갭).slice(0, 3);
+  
+  const peersToUse = goodPeers.length > 0 ? goodPeers : DISTRICTS.filter(r =>
+    clusterSameGroup.includes(`${r.시도} ${r.시군구}`)
+  ).slice(0, 2);
+
+  // ① 군집 분포 (CMRI 기준)
+  let clusterCardsHtml = '<div style="display:grid; grid-template-columns: repeat(3, 1fr); gap:16px; margin-bottom:24px;">';
+  Object.keys(CL).forEach(key => {
+    const c = CL[key];
+    const isActive = d.군집 === key;
+    const activeStyle = isActive ? 'border: 2.5px solid var(--rose); box-shadow: 0 0 16px rgba(244,63,94,0.2);' : 'opacity: 0.6;';
+    const activeBadge = isActive ? '<div style="position:absolute; top:-10px; right:12px; background:var(--rose); color:#fff; font-size:0.65rem; font-weight:800; padding:2px 8px; border-radius:4px; text-transform:uppercase;">📍 선택 지역 소속</div>' : '';
+    
+    clusterCardsHtml += `
+      <div class="card ${c.cls}" style="position:relative; padding:18px; border-radius:12px; ${activeStyle}">
+        ${activeBadge}
+        <div class="cct" style="font-weight:900; font-size:1.02rem; margin-bottom:8px;">${c.t}</div>
+        <div style="font-size:0.8rem; color:var(--muted); line-height:1.45; margin-bottom:10px;">${c.sub}</div>
+        <div style="font-size:0.75rem; color:var(--dim); font-weight:700;">소속 지자체:</div>
+        <div style="font-size:0.72rem; color:var(--muted); line-height:1.5; margin-top:4px;">
+          ${c.m.slice(0, 5).join(', ')}${c.m.length > 5 ? ' 외 ' + (c.m.length - 5) + '곳' : ''}
+        </div>
+      </div>
+    `;
+  });
+  clusterCardsHtml += '</div>';
+
+  // ② 현재 지역 vs 성공 지역 비교
+  const peer = peersToUse[0];
+  const overall = (0.25 * d.노후화 + 0.10 * d.사서부족 + 0.25 * d.도서관부족 + 0.40 * d.접근성).toFixed(1);
+  const mets = [
+    {k:'도서관부족', l:'자원부족', i:'📚', w:0.25},
+    {k:'사서부족',   l:'인구당사서',       i:'👩‍💼', w:0.10},
+    {k:'노후화',    l:'건물연식',          i:'🏚️', w:0.25},
+    {k:'접근성',    l:'교통불편',          i:'🚌', w:0.40}
+  ];
+  const sorted = mets.slice().sort((a,b) => (d[b.k]*b.w) - (d[a.k]*a.w));
+  const topMet = sorted[0];
+
+  let comparisonHtml = '';
+  if (peer) {
+    comparisonHtml = `
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px 24px; margin-bottom:24px;">
+        <div class="ct" style="margin-bottom:14px; font-size:0.95rem; font-weight:800; color:var(--cyan);">📊 현재 지역 vs 성공 지역 (벤치마킹) 지표 비교</div>
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:20px;">
+          <div style="background:rgba(244,63,94,0.03); border:1px solid rgba(244,63,94,0.15); border-radius:11px; padding:16px;">
+            <div style="font-size:0.75rem; color:var(--rose); font-weight:800; margin-bottom:10px; text-transform:uppercase;">📍 현재 분석 지역: ${d.시도} ${d.시군구}</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:between; font-size:0.84rem;"><span style="color:var(--dim);">CMRI (위험도)</span><strong style="margin-left:auto; color:var(--text);">${d.CMRI}점</strong></div>
+              <div style="display:flex; justify-content:between; font-size:0.84rem;"><span style="color:var(--dim);">소멸압력</span><strong style="margin-left:auto; color:var(--text);">${d.S_pop_소멸}점</strong></div>
+              <div style="display:flex; justify-content:between; font-size:0.84rem;"><span style="color:var(--dim);">문화인프라 수준</span><strong style="margin-left:auto; color:var(--text);">${d.S_infra_인프라}점</strong></div>
+              <div style="display:flex; justify-content:between; font-size:0.84rem; border-top:1px dashed var(--border); padding-top:6px; margin-top:2px;">
+                <span style="color:var(--rose); font-weight:700;">핵심 불편지표</span>
+                <strong style="margin-left:auto; color:var(--rose);">${topMet.l}</strong>
+              </div>
+            </div>
+          </div>
+          <div style="background:rgba(16,185,129,0.03); border:1px solid rgba(16,185,129,0.15); border-radius:11px; padding:16px;">
+            <div style="font-size:0.75rem; color:var(--green); font-weight:800; margin-bottom:10px; text-transform:uppercase;">🏆 성공 벤치마킹 지역: ${peer.시도} ${peer.시군구}</div>
+            <div style="display:flex; flex-direction:column; gap:8px;">
+              <div style="display:flex; justify-content:between; font-size:0.84rem;"><span style="color:var(--dim);">CMRI (위험도)</span><strong style="margin-left:auto; color:var(--text);">${peer.CMRI}점</strong></div>
+              <div style="display:flex; justify-content:between; font-size:0.84rem;"><span style="color:var(--dim);">소멸압력</span><strong style="margin-left:auto; color:var(--text);">${peer.S_pop_소멸}점</strong></div>
+              <div style="display:flex; justify-content:between; font-size:0.84rem;"><span style="color:var(--dim);">문화인프라 수준</span><strong style="margin-left:auto; color:var(--text);">${peer.S_infra_인프라}점</strong></div>
+              <div style="display:flex; justify-content:between; font-size:0.84rem; border-top:1px dashed var(--border); padding-top:6px; margin-top:2px;">
+                <span style="color:var(--green); font-weight:700;">개선된 핵심 지표</span>
+                <strong style="margin-left:auto; color:var(--green);">${topMet.l} (개선 성공)</strong>
+              </div>
+            </div>
+          </div>
+        </div>
+      </div>
+    `;
+  }
+
+  // ③ 성공 사례 카드 형태
+  let storiesHtml = '<div style="display:flex; flex-direction:column; gap:16px;">';
+  peersToUse.forEach(r => {
+    const sKey = `${r.시도} ${r.시군구}`;
+    const pData = SUCCESS_STORIES_STRUCTURED[sKey] || {
+      policy: "도서관 인프라 정비 및 운영 고도화",
+      background: `${topMet.l} 문제 해결을 위한 공간 및 시스템 개선 필요`,
+      content: SUCCESS_STORIES[sKey] || `${r.시도} ${r.시군구}는 도서관 공간 및 인프라 격차를 해결한 지자체입니다.`,
+      effect: "주민 만족도 증진 및 도서관 이용률 제고"
+    };
+
+    storiesHtml += `
+      <div style="background:var(--card); border:1px solid var(--border); border-radius:16px; padding:22px 24px;">
+        <div style="font-weight:800; color:var(--green); font-size:1.05rem; margin-bottom:14px; border-bottom:1px solid var(--border); padding-bottom:8px; display:flex; align-items:center; gap:8px;">
+          <span>🏆</span> 벤치마킹 대상: ${r.시도} ${r.시군구} (${r.군집})
+        </div>
+        <div style="display:grid; grid-template-columns:120px 1fr; gap:10px; font-size:0.86rem; line-height:1.65;">
+          <div style="color:var(--dim); font-weight:700;">대표 성공 정책</div>
+          <div style="color:var(--text); font-weight:800;">${pData.policy}</div>
+          
+          <div style="color:var(--dim); font-weight:700;">적용 배경</div>
+          <div style="color:var(--muted);">${pData.background}</div>
+          
+          <div style="color:var(--dim); font-weight:700;">주요 추진 내용</div>
+          <div style="color:var(--muted);">${pData.content}</div>
+          
+          <div style="color:var(--dim); font-weight:700;">성과</div>
+          <div style="color:var(--green); font-weight:700;">${pData.effect}</div>
+        </div>
+      </div>
+    `;
+  });
+  storiesHtml += '</div>';
+
+  document.getElementById('step3-content').innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:20px;">
+      <div>
+        <div style="font-size:0.85rem; font-weight:700; color:var(--muted); margin-bottom:10px; letter-spacing:0.04em;">① 군집 분포 (CMRI 기준)</div>
+        ${clusterCardsHtml}
+      </div>
+      ${comparisonHtml}
+      <div>
+        <div style="font-size:0.85rem; font-weight:700; color:var(--muted); margin-bottom:10px; letter-spacing:0.04em;">② 군집 우수사례 성공 스토리 상세</div>
+        ${storiesHtml}
+      </div>
+    </div>
+  `;
+}
+
+function r4() {
+  const d = SEL;
+  const simInfo = CULTURAL_SIMILARITY[d.시군구];
+
+  const overall = (0.25 * d.노후화 + 0.10 * d.사서부족 + 0.25 * d.도서관부족 + 0.40 * d.접근성).toFixed(1);
+  const mets = [
+    {k:'도서관부족', l:'자원부족', i:'📚', w:0.25},
+    {k:'사서부족',   l:'인구당사서',       i:'👩‍💼', w:0.10},
+    {k:'노후화',    l:'건물연식',          i:'🏚️', w:0.25},
+    {k:'접근성',    l:'교통불편',          i:'🚌', w:0.40}
+  ];
+  const sorted = mets.slice().sort((a,b) => (d[b.k]*b.w) - (d[a.k]*a.w));
+  const topMet = sorted[0];
+
+  const indicatorMap = {
+    '노후화': '건물연식',
+    '사서부족': '인구당사서',
+    '도서관부족': '자원부족',
+    '접근성': '교통불편'
+  };
+  const highestIndicatorName = indicatorMap[topMet.k];
+  const step1Policies = POLICIES.filter(p => p.indicators.includes(highestIndicatorName));
+
+  const hasSimInfo = !!simInfo;
+  const seoulName = hasSimInfo ? simInfo.matched_seoul : '—';
+  const seoulPolicy = hasSimInfo ? simInfo.policy : null;
+  const simPct = hasSimInfo ? (simInfo.similarity * 100).toFixed(1) : '—';
+
+  const clusterInfo = CL[d.군집];
+  const clusterSameGroup = clusterInfo ? clusterInfo.m.filter(m => !m.includes(d.시군구)) : [];
+  const goodPeers = DISTRICTS.filter(r =>
+    clusterSameGroup.includes(`${r.시도} ${r.시군구}`) && r.인프라갭 > 0
+  ).sort((a,b) => b.인프라갭 - a.인프라갭).slice(0, 3);
+
+  const peersToUse = goodPeers.length > 0 ? goodPeers : DISTRICTS.filter(r =>
+    clusterSameGroup.includes(`${r.시도} ${r.시군구}`)
+  ).slice(0, 2);
+
+  const peer = peersToUse[0];
+  const peerStructured = peer ? SUCCESS_STORIES_STRUCTURED[`${peer.시도} ${peer.시군구}`] : null;
+
+  // 생성형 AI 보고서 입력용 컨텍스트 저장 (앞 단계 분석 결과 종합)
+  window.__aiContext = {
+    region: `${d.시도} ${d.시군구}`,
+    cmri: d.CMRI,
+    cluster: d.군집,
+    metrics: { 도서관부족: d.도서관부족, 사서부족: d.사서부족, 노후화: d.노후화, 접근성: d.접근성, 종합불편: overall },
+    topProblem: topMet.l,
+    selectedPolicy: state.selectedPolicy ? { name: state.selectedPolicy.name, type: state.selectedPolicy.type, desc: state.selectedPolicy.desc } : null,
+    seoul: hasSimInfo ? { name: seoulName, similarity: simPct, policy: { name: seoulPolicy.name, objective: seoulPolicy.objective, content: seoulPolicy.content } } : null,
+    peer: peer ? { region: `${peer.시도} ${peer.시군구}`, policy: (peerStructured ? peerStructured.policy : null) } : null
+  };
+
+  document.getElementById('report').innerHTML = `
+    <div style="display:flex; flex-direction:column; gap:22px;">
+
+      <!-- 보고서 헤더 -->
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,0.12),rgba(6,182,212,0.08));border:1px solid rgba(99,102,241,0.2);border-radius:16px;padding:24px 28px;">
+        <div style="font-size:0.72rem;font-weight:700;letter-spacing:0.1em;text-transform:uppercase;color:var(--purple);margin-bottom:8px;">📄 최종 AI 정책 추천 보고서 (Result)</div>
+        <div style="font-size:1.4rem;font-weight:900;letter-spacing:-0.02em;margin-bottom:6px;">${d.시도} ${d.시군구} 맞춤형 도서관 정책 종합 제안서</div>
+        <div style="font-size:0.82rem;color:var(--muted);">생성일: ${new Date().toLocaleDateString('ko-KR')} &nbsp;·&nbsp; 분석 기반: 문제 진단(What) + 문화 유사성(How) + 군집 성공사례(Reference) 종합 추천</div>
+      </div>
+
+      <!-- ① 문제 진단 요약 -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--rose);"></div>
+        <div style="font-size:0.82rem;font-weight:800;color:var(--rose);margin-bottom:14px;letter-spacing:0.04em;">① 문제 진단 요약</div>
+        <div style="display:grid;grid-template-columns: 1fr 1fr 1fr;gap:14px;margin-bottom:14px;">
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:12px 14px;">
+            <div style="font-size:0.7rem;color:var(--dim);font-weight:700;margin-bottom:4px;">종합 불편점수</div>
+            <div style="font-size:1.45rem;font-weight:900;color:var(--rose);">${overall}점</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:12px 14px;">
+            <div style="font-size:0.7rem;color:var(--dim);font-weight:700;margin-bottom:4px;">핵심 불편요인</div>
+            <div style="font-size:1.1rem;font-weight:900;color:var(--rose);">${topMet.i} ${topMet.l}</div>
+          </div>
+          <div style="background:var(--card2);border:1px solid var(--border);border-radius:11px;padding:12px 14px;">
+            <div style="font-size:0.7rem;color:var(--dim);font-weight:700;margin-bottom:4px;">CMRI (문화소멸위험지수)</div>
+            <div style="font-size:1.45rem;font-weight:900;color:var(--text);">${d.CMRI}점 (${d.군집})</div>
+          </div>
+        </div>
+        <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;border-top:1px solid var(--border);padding-top:10px;">
+          가중치 기준 실질 영향력이 가장 높은 요인은 <strong>${topMet.l} (${(d[topMet.k]*topMet.w).toFixed(1)}점)</strong>이며, ${
+            topMet.k === '도서관부족' ? '주민 1인당 장서 수 및 운영 자원이 부족하여 문화서비스 공급 역량이 낮은 상태입니다.' :
+            topMet.k === '노후화' ? '노후화된 시설로 인해 이용 환경과 서비스 품질 개선이 필요한 상태입니다.' :
+            topMet.k === '접근성' ? '도서관 접근성이 낮아 주민의 이용 편의성이 저하된 상태입니다.' :
+            '사서 1인당 담당 인구가 많아 전문 서비스 제공이 어려운 상태입니다.'
+          } 종합 불편 수준은 <strong>${overall}점</strong>으로 평가되었습니다.
+        </div>
+      </div>
+
+      <!-- ② 정책 종류 결정 -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--purple);"></div>
+        <div style="font-size:0.82rem;font-weight:800;color:var(--purple);margin-bottom:14px;letter-spacing:0.04em;">② 정책 종류 결정 (What)</div>
+        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+          진단된 핵심 문제 <strong>${topMet.l}</strong> 해결을 위해 정책 DB에서 추천된 대표 정책입니다.
+        </div>
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-left:3.5px solid var(--purple);">
+          <div style="font-size:0.95rem;font-weight:800;color:var(--text);margin-bottom:5px;display:flex;align-items:center;gap:6px;">
+            <span>${state.selectedPolicy ? state.selectedPolicy.icon : '📚'}</span>
+            <strong>${state.selectedPolicy ? state.selectedPolicy.name : '도서관 정책 추천'}</strong>
+          </div>
+          <div style="font-size:0.75rem;color:var(--purple);font-weight:700;margin-bottom:6px;">구분: ${state.selectedPolicy ? state.selectedPolicy.type : '도서관 활성화'}</div>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">${state.selectedPolicy ? state.selectedPolicy.desc : ''}</div>
+        </div>
+      </div>
+
+      <!-- ③ 운영 방식 결정 -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--blue);"></div>
+        <div style="font-size:0.82rem;font-weight:800;color:var(--blue);margin-bottom:14px;letter-spacing:0.04em;">③ 운영 방식 결정 (How)</div>
+        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+          선택 지역과 문화적 특성이 가장 유사한 <strong>서울 ${seoulName}</strong>(유사도 ${simPct}%)의 실제 우수 운영 프로그램을 분석하여 접목합니다.
+        </div>
+        ${hasSimInfo ? `
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-left:3.5px solid var(--cyan);">
+          <div style="font-weight:800;color:var(--cyan);font-size:0.92rem;margin-bottom:6px;">📍 서울 ${seoulName} 벤치마킹 운영 기법: ${seoulPolicy.name}</div>
+          <div style="display:flex; flex-direction:column; gap:6px; font-size:0.82rem; line-height:1.6;">
+            <div><strong>운영 목적:</strong> ${seoulPolicy.objective}</div>
+            <div><strong>세부 내용:</strong> ${seoulPolicy.content}</div>
+          </div>
+        </div>` : '<p style="color:var(--rose); font-size:0.82rem;">문화 매칭 사례가 존재하지 않습니다.</p>'}
+      </div>
+
+      <!-- ④ 참고 사례 -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:var(--green);"></div>
+        <div style="font-size:0.82rem;font-weight:800;color:var(--green);margin-bottom:14px;letter-spacing:0.04em;">④ 참고 사례 (Reference)</div>
+        <div style="font-size:0.84rem;color:var(--muted);margin-bottom:12px;line-height:1.6;">
+          동일 군집(${d.군집}) 내에서 성공적으로 문화 인프라를 정비한 벤치마킹 지역의 요약 정보입니다.
+        </div>
+        ${peer ? `
+        <div style="background:var(--card2);border:1px solid var(--border);border-radius:10px;padding:14px 16px;border-left:3.5px solid var(--green);">
+          <div style="font-weight:800;color:var(--green);font-size:0.92rem;margin-bottom:6px;">📌 동일 군집 성공 지역: ${peer.시도} ${peer.시군구}</div>
+          <div style="font-size:0.82rem;color:var(--muted);line-height:1.6;">
+            <strong>대표 성공 정책:</strong> ${peerStructured ? peerStructured.policy : '도서관 활성화'} <br>
+            <span style="font-size:0.75rem; color:var(--dim);">(상세 추진 내용 및 성과는 STEP 3 성공 사례 화면 참조)</span>
+          </div>
+        </div>` : '<p style="color:var(--rose); font-size:0.82rem;">동일 군집의 참고 지자체 데이터가 부족합니다.</p>'}
+      </div>
+
+      <!-- ⑤ 최종 AI 정책 제안 -->
+      <div style="background:linear-gradient(135deg,rgba(99,102,241,0.15),rgba(6,182,212,0.1));border:2px solid var(--purple);border-radius:16px;padding:24px 28px;position:relative;overflow:hidden; box-shadow: 0 0 20px rgba(99,102,241,0.15);">
+        <div style="font-size:0.82rem;font-weight:900;color:var(--purple);margin-bottom:14px;letter-spacing:0.05em;text-transform:uppercase;">📌 최종 AI 정책 제안 (Result)</div>
+        
+        <div style="font-size:1.35rem;font-weight:900;color:#fff;margin-bottom:16px;">
+          최종 추천 정책: <span style="color:var(--purple); text-shadow:0 0 8px rgba(165,180,252,0.3);">${state.selectedPolicy ? state.selectedPolicy.name : '맞춤형 도서관 건립 및 프로그램'}</span>
+        </div>
+        
+        <div style="display:grid; grid-template-columns: 1fr 1fr; gap:16px; margin-top:14px;">
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
+            <div style="font-weight:800; color:var(--purple); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:5px;">🔍 추천 이유</div>
+            <ul style="font-size:0.82rem; color:var(--muted); padding-left:14px; margin:0; line-height:1.75; list-style-type:disc;">
+              <li>지자체 핵심 불편지표 <strong>[${topMet.l}]</strong>에 대한 정밀 진단 및 매핑</li>
+              <li>선택 지자체 문화 특성과 <strong>서울 ${seoulName}</strong>의 높은 문화 정체성 유사도(${simPct}%) 반영</li>
+              <li>동일 위험도 집단인 <strong>[${d.군집}]</strong> 내 실제 성공 사례(U-도서관, 공간 현대화 등)의 유효성 검증</li>
+            </ul>
+          </div>
+          <div style="background:rgba(255,255,255,0.03); border:1px solid rgba(255,255,255,0.06); border-radius:10px; padding:16px;">
+            <div style="font-weight:800; color:var(--green); font-size:0.85rem; margin-bottom:8px; display:flex; align-items:center; gap:5px;">🚀 기대 효과</div>
+            <ul style="font-size:0.82rem; color:var(--muted); padding-left:14px; margin:0; line-height:1.75; list-style-type:disc;">
+              <li>핵심 생활 인프라 보완을 통한 지역 주민 만족도 증대 및 지표 개선</li>
+              <li>문화 맞춤형 콘텐츠 공급으로 도서관 이용 연령층 다양화</li>
+              <li>생활 문화 여건 향상을 바탕으로 문화소멸지수(CMRI) 및 소멸위험성 완화</li>
+            </ul>
+          </div>
+        </div>
+      </div>
+
+      <!-- ⑥ AI 생성 정책 제안서 -->
+      <div style="background:var(--card);border:1px solid var(--border);border-radius:16px;padding:22px 26px;position:relative;overflow:hidden;">
+        <div style="position:absolute;top:0;left:0;right:0;height:3px;background:linear-gradient(90deg,var(--purple),var(--cyan));"></div>
+        <div style="display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap;margin-bottom:12px;">
+          <div style="font-size:0.82rem;font-weight:800;color:var(--cyan);letter-spacing:0.04em;">⑥ AI 생성 정책 제안서 (Generative AI)</div>
+          <button id="ai-gen-btn" onclick="generateAIReport()" style="padding:10px 18px;border-radius:10px;border:none;background:linear-gradient(135deg,#6366f1,#06b6d4);color:#fff;font-weight:800;font-size:0.85rem;font-family:inherit;cursor:pointer;">🤖 AI 정책 제안서 생성</button>
+        </div>
+        <div style="font-size:0.8rem;color:var(--muted);line-height:1.6;margin-bottom:14px;">
+          위 ①~⑤ 분석 결과(문제 진단·추천 정책·유사지역 운영기법·군집 성공사례)를 종합하여, 생성형 AI(LLM)가 ${d.시도} ${d.시군구} 맞춤 정책 제안서를 실시간으로 작성합니다.
+        </div>
+        <div id="ai-report-body" style="font-size:0.86rem;color:var(--text);line-height:1.75;min-height:8px;"></div>
+      </div>
+
+    </div>`;
+}
+
+
+// ─── 생성형 AI 정책 제안서 (LLM via 서버리스 프록시) ───
+// 키는 서버(Vercel 함수)에만 있고, 브라우저에는 노출되지 않음.
+const AI_API_URL = "/api/generate-report";
+
+// 가벼운 마크다운 → HTML 변환 (헤딩/볼드/리스트/문단)
+function mdToHtml(md){
+  const esc = s => s.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+  const inline = s => esc(s)
+    .replace(/\*\*(.+?)\*\*/g,'<strong style="color:var(--text)">$1</strong>')
+    .replace(/\*(.+?)\*/g,'<em>$1</em>');
+  const lines = (md||'').split('\n');
+  let html = '', listType = null;
+  const closeList = () => { if(listType){ html += '</'+listType+'>'; listType = null; } };
+  for(const raw of lines){
+    const line = raw.replace(/\s+$/,'');
+    if(!line.trim()){ closeList(); continue; }
+    let m;
+    if(m = line.match(/^#{1,6}\s+(.*)/)){
+      closeList();
+      html += '<div style="font-weight:800;color:var(--purple);font-size:1rem;margin:16px 0 6px;">'+inline(m[1])+'</div>';
+    } else if(m = line.match(/^\s*[-•*]\s+(.*)/)){
+      if(listType !== 'ul'){ closeList(); html += '<ul style="padding-left:18px;margin:6px 0;list-style-type:disc;">'; listType='ul'; }
+      html += '<li style="margin:3px 0;">'+inline(m[1])+'</li>';
+    } else if(m = line.match(/^\s*\d+[.)]\s+(.*)/)){
+      if(listType !== 'ol'){ closeList(); html += '<ol style="padding-left:20px;margin:6px 0;">'; listType='ol'; }
+      html += '<li style="margin:3px 0;">'+inline(m[1])+'</li>';
+    } else {
+      closeList();
+      html += '<p style="margin:8px 0;">'+inline(line)+'</p>';
+    }
+  }
+  closeList();
+  return html;
+}
+
+async function generateAIReport(){
+  const ctx = window.__aiContext;
+  const body = document.getElementById('ai-report-body');
+  const btn = document.getElementById('ai-gen-btn');
+  if(!body) return;
+  if(!ctx){ body.innerHTML = '<span style="color:var(--rose)">먼저 지역을 선택하고 분석을 실행해 주세요.</span>'; return; }
+  if(btn){ btn.disabled = true; btn.style.opacity = .6; btn.style.cursor = 'default'; btn.textContent = '⏳ 생성 중...'; }
+  body.innerHTML = '<div style="color:var(--muted);font-size:.85rem;">🤖 AI가 정책 제안서를 작성하고 있습니다…</div>';
+  let acc = '';
+  try{
+    const resp = await fetch(AI_API_URL, {
+      method: 'POST',
+      headers: { 'Content-Type': 'application/json' },
+      body: JSON.stringify({ context: ctx })
+    });
+    if(!resp.ok){
+      let msg = 'AI 생성 요청 실패 (' + resp.status + ')';
+      try{ const e = await resp.json(); if(e && e.error) msg = e.error; }catch(_){}
+      throw new Error(msg);
+    }
+    if(!resp.body || !resp.body.getReader){
+      acc = await resp.text();
+      body.innerHTML = mdToHtml(acc);
+    } else {
+      const reader = resp.body.getReader();
+      const decoder = new TextDecoder();
+      let buffer = '';
+      while(true){
+        const { done, value } = await reader.read();
+        if(done) break;
+        buffer += decoder.decode(value, { stream: true });
+        const parts = buffer.split('\n');
+        buffer = parts.pop();
+        for(const line of parts){
+          const t = line.trim();
+          if(!t.startsWith('data:')) continue;
+          const data = t.slice(5).trim();
+          if(data === '[DONE]') continue;
+          try{
+            const json = JSON.parse(data);
+            const delta = (json.choices && json.choices[0] && json.choices[0].delta && json.choices[0].delta.content) || '';
+            if(delta){ acc += delta; body.innerHTML = mdToHtml(acc); }
+          }catch(_){ /* 부분 청크는 무시 */ }
+        }
+      }
+    }
+    if(!acc.trim()){
+      body.innerHTML = '<span style="color:var(--rose)">생성된 내용이 없습니다. 모델 슬러그/키 설정을 확인하세요.</span>';
+    }
+  }catch(err){
+    body.innerHTML = '<span style="color:var(--rose)">⚠️ ' + (err.message || err) + '</span>'
+      + '<br><span style="font-size:.78rem;color:var(--dim)">로컬에서 파일을 직접 열면 API 함수가 없어 실패합니다. Vercel 배포 후(또는 `vercel dev`) 정상 동작합니다.</span>';
+  }finally{
+    if(btn){ btn.disabled = false; btn.style.opacity = 1; btn.style.cursor = 'pointer'; btn.textContent = '🔄 다시 생성'; }
+  }
+}
+
+// ─── 군집 데이터 (STEP 3 보고서에서 활용) ───
+const CL={
+  "군집 1":{t:"🔴 군집 1 · 최고위험군",sub:"소멸압력·인프라 취약 동시 높음 (평균 CMRI 60.1)",cls:"cc1",m:["부산 서구","부산 사하구","부산 영도구","부산 금정구","부산 북구","부산 해운대구","경남 합천군","경남 하동군","경남 함양군","경남 함안군","경남 창원시","경남 거제시","경남 거창군"]},
+  "군집 2":{t:"🟡 군집 2 · 중간위험군(사각지대)",sub:"소멸압력 낮으나 인프라 취약 (평균 CMRI 49.1)",cls:"cc2",m:["부산 동래구","부산 남구","부산 부산진구","부산 수영구","부산 강서구","부산 연제구","경남 진주시","경남 양산시","경남 김해시"]},
+  "군집 3":{t:"🟢 군집 3 · 상대적 안정군",sub:"인프라 상대적 양호 (평균 CMRI 44.5)",cls:"cc3",m:["경남 고성군","경남 의령군","경남 통영시","경남 남해군","경남 밀양시","경남 창녕군","경남 산청군","경남 사천시","부산 사상구","부산 중구","부산 동구","부산 기장군"]}
+};
+</script>
+</body>
+</html>
